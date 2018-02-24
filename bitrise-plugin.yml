@@ -1,0 +1,14 @@
+name: analytics
+description: |-
+  Submitting anonymized usage information.
+
+  This usage helps us identify any problems with the integrations.
+
+  The sent data only contains information about steps (id, version, runtime, error), NO logs or other data is included.
+executable:
+  osx: https://github.com/bitrise-core/bitrise-plugins-analytics/releases/download/0.9.11/bitrise-plugins-analytics-Darwin-x86_64
+  linux: https://github.com/bitrise-core/bitrise-plugins-analytics/releases/download/0.9.11/bitrise-plugins-analytics-Linux-x86_64
+requirements:
+- tool: bitrise
+  min_version: 1.3.0
+  max_version: ""

@@ -42,7 +42,7 @@ workflows:
         - content: |-
             #!/bin/bash
             set -ex
-            no_vendor_paths="$(go list ./... | grep -v vendor)"
+            no_vendor_paths="$(gows go list ./... | grep -v vendor)"
             envman add --key GOLIST_WITHOUT_VENDOR --value "$no_vendor_paths"
     - script:
         title: Err check

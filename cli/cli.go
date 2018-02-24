@@ -5,8 +5,8 @@ import (
 	"os"
 	"path"
 
-	"bitrise-plugins-io/configs"
-	"bitrise-plugins-io/services"
+	"github.com/slapec93/bitrise-plugins-io/configs"
+	"github.com/slapec93/bitrise-plugins-io/services"
 
 	bitriseConfigs "github.com/bitrise-io/bitrise/configs"
 	"github.com/bitrise-io/bitrise/plugins"
@@ -64,56 +64,6 @@ func ensureFormatVersion(pluginFormatVersionStr, hostBitriseFormatVersionStr str
 
 	return "", nil
 }
-
-// func action(c *cli.Context) {
-// 	pluginMode := os.Getenv(plugins.PluginInputPluginModeKey)
-// 	if pluginMode == string(plugins.TriggerMode) {
-// 		// ensure plugin's format version matches to host bitrise-cli's format version
-// 		hostBitriseFormatVersionStr := os.Getenv(plugins.PluginInputFormatVersionKey)
-// 		pluginFormatVersionStr := models.Version
-
-// 		if warn, err := ensureFormatVersion(pluginFormatVersionStr, hostBitriseFormatVersionStr); err != nil {
-// 			log.Errorf(err.Error())
-// 			os.Exit(1)
-// 		} else if warn != "" {
-// 			log.Warnf(warn)
-// 		}
-// 		// ---
-
-// 		config, err := configs.ReadConfig()
-// 		if err != nil {
-// 			log.Errorf("Failed to read analytics configuration, error: %s", err)
-// 			os.Exit(1)
-// 		}
-
-// 		if config.IsAnalyticsDisabled {
-// 			return
-// 		}
-
-// 		payload := os.Getenv(plugins.PluginInputPayloadKey)
-
-// 		var buildRunResults models.BuildRunResultsModel
-// 		if err := json.Unmarshal([]byte(payload), &buildRunResults); err != nil {
-// 			log.Errorf("Failed to parse plugin input (%s), error: %s", payload, err)
-// 			os.Exit(1)
-// 		}
-
-// 		log.Infof("")
-// 		log.Infof("Submitting anonymized usage informations...")
-// 		log.Infof("For more information visit:")
-// 		log.Infof("https://github.com/bitrise-core/bitrise-plugins-analytics/blob/master/README.md")
-
-// 		if err := analytics.SendAnonymizedAnalytics(buildRunResults); err != nil {
-// 			log.Errorf("Failed to send analytics, error: %s", err)
-// 			os.Exit(1)
-// 		}
-// 	} else {
-// 		if err := cli.ShowAppHelp(c); err != nil {
-// 			log.Errorf("Failed to show help, error: %s", err)
-// 			os.Exit(1)
-// 		}
-// 	}
-// }
 
 func apps(c *cli.Context) {
 	log.Infof("")
