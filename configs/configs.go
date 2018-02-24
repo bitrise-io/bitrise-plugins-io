@@ -26,9 +26,7 @@ var (
 //=======================================
 
 // ConfigModel ...
-type ConfigModel struct {
-	IsAnalyticsDisabled bool `yaml:"is_analytics_disabled"`
-}
+type ConfigModel struct{}
 
 // NewConfigFromBytes ...
 func NewConfigFromBytes(bytes []byte) (ConfigModel, error) {
