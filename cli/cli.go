@@ -7,11 +7,11 @@ import (
 
 	"github.com/slapec93/bitrise-plugins-io/configs"
 	"github.com/slapec93/bitrise-plugins-io/services"
+	"github.com/slapec93/bitrise-plugins-io/version"
 
 	bitriseConfigs "github.com/bitrise-io/bitrise/configs"
 	"github.com/bitrise-io/bitrise/plugins"
 	"github.com/bitrise-io/go-utils/log"
-	"github.com/bitrise-tools/gows/version"
 	"github.com/codegangsta/cli"
 	"github.com/pkg/errors"
 
