@@ -20,8 +20,9 @@ VERSION:
    %s
 
 COMMANDS:
-     apps     Get apps for user
-     help, h  Shows a list of commands or help for one command
+     add-auth-token  Add API authentication token
+     apps            Get apps for user
+     help, h         Shows a list of commands or help for one command
 
 GLOBAL OPTIONS:
    --loglevel value, -l value  Log level (options: debug, info, warn, error, fatal, panic). [$LOGLEVEL]

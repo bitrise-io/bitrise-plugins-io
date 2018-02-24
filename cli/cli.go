@@ -20,6 +20,11 @@ import (
 
 var commands = []cli.Command{
 	cli.Command{
+		Name:   "add-auth-token",
+		Usage:  "Add API authentication token",
+		Action: addAuthToken,
+	},
+	cli.Command{
 		Name:   "apps",
 		Usage:  "Get apps for user",
 		Action: apps,
@@ -65,9 +70,28 @@ func ensureFormatVersion(pluginFormatVersionStr, hostBitriseFormatVersionStr str
 	return "", nil
 }
 
+func addAuthToken(c *cli.Context) {
+	log.Infof("")
+	log.Infof("\x1b[34;1mSet authentication token...\x1b[0m")
+
+	args := c.Args()
+	if len(args) != 1 {
+		log.Errorf("Failed to set authentication token, error: %s", errors.New("invalid number of arguments"))
+		os.Exit(1)
+	}
+
+	if err := configs.SetAPIToken(args[0]); err != nil {
+		log.Errorf("Failed to set authentication token, error: %s", err)
+		os.Exit(1)
+	}
+
+	log.Infof("\x1b[32;1mAuthentication token set successfully...\x1b[0m")
+}
+
 func apps(c *cli.Context) {
 	log.Infof("")
 	log.Infof("\x1b[34;1mGet user apps...\x1b[0m")
+
 	services.GetBitriseAppsForUser()
 }
 

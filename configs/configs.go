@@ -26,7 +26,9 @@ var (
 //=======================================
 
 // ConfigModel ...
-type ConfigModel struct{}
+type ConfigModel struct {
+	BitriseAPIAuthenticationToken string `yaml:"api_authentication_token"`
+}
 
 // NewConfigFromBytes ...
 func NewConfigFromBytes(bytes []byte) (ConfigModel, error) {
@@ -86,4 +88,25 @@ func saveConfig(config ConfigModel) error {
 	}
 
 	return fileutil.WriteBytesToFileWithPermission(configPth, bytes, 0)
+}
+
+// SetAPIToken ...
+func SetAPIToken(apiToken string) error {
+	config, err := ReadConfig()
+	if err != nil {
+		return err
+	}
+
+	config.BitriseAPIAuthenticationToken = apiToken
+
+	return saveConfig(config)
+}
+
+func readAPIToken() (string, error) {
+	config, err := ReadConfig()
+	if err != nil {
+		return "", err
+	}
+
+	return config.BitriseAPIAuthenticationToken, nil
 }
