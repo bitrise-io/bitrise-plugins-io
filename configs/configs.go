@@ -46,7 +46,7 @@ func NewConfigFromBytes(bytes []byte) (ConfigModel, error) {
 
 func getConfigFilePath() (string, error) {
 	if DataDir == "" {
-		return "", errors.New("could not determin plugin data dir, run plugin through bitrise (bitrise :analytics COMMAND_TO_RUN)")
+		return "", errors.New("could not determin plugin data dir, run plugin through bitrise (bitrise :io COMMAND_TO_RUN)")
 	}
 	return path.Join(DataDir, "config.yml"), nil
 }

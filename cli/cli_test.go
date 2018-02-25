@@ -19,20 +19,20 @@ func TestEnsureFormatVersion(t *testing.T) {
 	{
 		warn, err := ensureFormatVersion("3", "")
 		require.NoError(t, err)
-		require.Equal(t, "This analytics plugin version would need bitrise-cli version >= 1.6.0 to submit analytics", warn)
+		require.Equal(t, "This io plugin version would need bitrise-cli version >= 1.6.0 to access Bitrise IO", warn)
 	}
 
 	t.Log("bitrise format version < plugin format version")
 	{
 		warn, err := ensureFormatVersion("3", "1.4.0")
 		require.NoError(t, err)
-		require.Equal(t, "Outdated bitrise-cli, used format version is lower then the analytics plugin's format version, please update the bitrise-cli", warn)
+		require.Equal(t, "Outdated bitrise-cli, used format version is lower then the io plugin's format version, please update the bitrise-cli", warn)
 	}
 
 	t.Log("bitrise format version > plugin format version")
 	{
 		warn, err := ensureFormatVersion("3", "4")
 		require.NoError(t, err)
-		require.Equal(t, "Outdated analytics plugin, used format version is lower then host bitrise-cli's format version, please update the plugin", warn)
+		require.Equal(t, "Outdated io plugin, used format version is lower then host bitrise-cli's format version, please update the plugin", warn)
 	}
 }

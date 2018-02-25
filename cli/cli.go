@@ -48,7 +48,7 @@ func before(c *cli.Context) error {
 
 func ensureFormatVersion(pluginFormatVersionStr, hostBitriseFormatVersionStr string) (string, error) {
 	if hostBitriseFormatVersionStr == "" {
-		return "This analytics plugin version would need bitrise-cli version >= 1.6.0 to submit analytics", nil
+		return "This io plugin version would need bitrise-cli version >= 1.6.0 to access Bitrise IO", nil
 	}
 
 	hostBitriseFormatVersion, err := ver.NewVersion(hostBitriseFormatVersionStr)
@@ -58,13 +58,13 @@ func ensureFormatVersion(pluginFormatVersionStr, hostBitriseFormatVersionStr str
 
 	pluginFormatVersion, err := ver.NewVersion(pluginFormatVersionStr)
 	if err != nil {
-		return "", errors.Errorf("Failed to parse analytics plugin format version (%s), error: %s", pluginFormatVersionStr, err)
+		return "", errors.Errorf("Failed to parse io plugin format version (%s), error: %s", pluginFormatVersionStr, err)
 	}
 
 	if pluginFormatVersion.LessThan(hostBitriseFormatVersion) {
-		return "Outdated analytics plugin, used format version is lower then host bitrise-cli's format version, please update the plugin", nil
+		return "Outdated io plugin, used format version is lower then host bitrise-cli's format version, please update the plugin", nil
 	} else if pluginFormatVersion.GreaterThan(hostBitriseFormatVersion) {
-		return "Outdated bitrise-cli, used format version is lower then the analytics plugin's format version, please update the bitrise-cli", nil
+		return "Outdated bitrise-cli, used format version is lower then the io plugin's format version, please update the bitrise-cli", nil
 	}
 
 	return "", nil
