@@ -92,7 +92,11 @@ func apps(c *cli.Context) {
 	log.Infof("")
 	log.Infof("\x1b[34;1mGet user apps...\x1b[0m")
 
-	services.GetBitriseAppsForUser()
+	err := services.GetBitriseAppsForUser()
+	if err != nil {
+		log.Errorf("Failed to fetch application list, error: %s", err)
+		os.Exit(1)
+	}
 }
 
 //=======================================
