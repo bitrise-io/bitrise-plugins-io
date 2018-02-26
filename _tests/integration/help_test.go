@@ -20,7 +20,7 @@ VERSION:
    %s
 
 COMMANDS:
-     add-auth-token  Add API authentication token
+     set-auth-token  Set API authentication token
      apps            Get apps for user
      help, h         Shows a list of commands or help for one command
 

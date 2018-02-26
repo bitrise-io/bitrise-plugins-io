@@ -48,7 +48,7 @@ func GetBitriseAppsForUser() error {
 	}()
 
 	if resp.StatusCode < 200 || resp.StatusCode > 210 {
-		return fmt.Errorf("fetching apps from Bitrise IO, failed with status code: %d", resp.StatusCode)
+		return fmt.Errorf("fetching apps from Bitrise IO, failed with status code: %d: %s", resp.StatusCode, resp.Status)
 	}
 
 	response := map[string]interface{}{}
@@ -56,7 +56,7 @@ func GetBitriseAppsForUser() error {
 		return errors.WithStack(err)
 	}
 
-	prettyResp, err := json.MarshalIndent(response, "", "\t")
+	prettyResp, err := json.MarshalIndent(response, "", "  ")
 	if err != nil {
 		return errors.WithStack(err)
 	}
