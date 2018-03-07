@@ -27,7 +27,7 @@ var commands = []cli.Command{
 			cli.StringFlag{
 				Name:   "app-slug",
 				Usage:  "Slug of the app where the builds belong to",
-				EnvVar: "APPSLUG",
+				EnvVar: "APP_SLUG",
 			},
 		},
 	},

@@ -87,7 +87,14 @@ func apps(c *cli.Context) {
 }
 
 func builds(c *cli.Context) {
-
+	appSlug := getFlag(c, "APP_SLUG", "app-slug")
+	next := getFlag(c, "NEXT", "next")
+	limit := getFlag(c, "LIMIT", "limit")
+	err := services.GetBitriseBuildsForApp(appSlug, next, limit)
+	if err != nil {
+		log.Errorf("Failed to fetch build list, error: %s", err)
+		os.Exit(1)
+	}
 }
 
 //=======================================
