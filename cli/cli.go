@@ -77,8 +77,8 @@ func setAuthToken(c *cli.Context) {
 }
 
 func apps(c *cli.Context) {
-	next := os.Getenv("NEXT")
-	limit := os.Getenv("LIMIT")
+	next := getFlag(c, "NEXT", "next")
+	limit := getFlag(c, "LIMIT", "limit")
 	err := services.GetBitriseAppsForUser(next, limit)
 	if err != nil {
 		log.Errorf("Failed to fetch application list, error: %s", err)

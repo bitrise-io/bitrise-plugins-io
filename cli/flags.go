@@ -1,6 +1,10 @@
 package cli
 
-import "github.com/urfave/cli"
+import (
+	"os"
+
+	"github.com/urfave/cli"
+)
 
 var (
 	nextFlag = cli.StringFlag{
@@ -14,3 +18,11 @@ var (
 		EnvVar: "LIMIT",
 	}
 )
+
+func getFlag(c *cli.Context, envName, flagName string) string {
+	flagValue := c.String(flagName)
+	if len(flagValue) == 0 {
+		flagValue = os.Getenv(envName)
+	}
+	return flagValue
+}

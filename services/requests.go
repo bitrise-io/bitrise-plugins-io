@@ -23,6 +23,7 @@ func urlWithParameters(url string, queryParams map[string]string) (urlWithParams
 		if len(paramValue) > 0 {
 			if isFirstParam {
 				urlWithParams = fmt.Sprintf("%s?%s=%s", urlWithParams, paramName, paramValue)
+				isFirstParam = false
 			} else {
 				urlWithParams = fmt.Sprintf("%s&%s=%s", urlWithParams, paramName, paramValue)
 			}
