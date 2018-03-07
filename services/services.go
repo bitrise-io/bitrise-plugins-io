@@ -3,12 +3,9 @@ package services
 import (
 	"encoding/json"
 	"fmt"
-	"net/http"
-	"time"
 
 	"github.com/bitrise-io/go-utils/log"
 	"github.com/pkg/errors"
-	"github.com/slapec93/bitrise-plugins-io/configs"
 )
 
 const (
@@ -16,26 +13,13 @@ const (
 )
 
 // GetBitriseAppsForUser ...
-func GetBitriseAppsForUser() error {
-	config, err := configs.ReadConfig()
+func GetBitriseAppsForUser(next, limit string) error {
+	req, err := getRequest(fmt.Sprintf("%s/apps", apiRootURL), map[string]string{"next": next, "limit": limit})
 	if err != nil {
 		return errors.WithStack(err)
 	}
-	if len(config.BitriseAPIAuthenticationToken) < 1 {
-		return errors.New("Bitrise API token isn't set, please set up with bitrise :io add-auth-token AUTH-TOKEN")
-	}
-	req, err := http.NewRequest("GET", fmt.Sprintf("%s/apps", apiRootURL), nil)
-	if err != nil {
-		return fmt.Errorf("failed to create request, error: %s", err)
-	}
 
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", fmt.Sprintf("token %s", config.BitriseAPIAuthenticationToken))
-
-	timeout := time.Duration(10 * time.Second)
-	client := http.Client{
-		Timeout: timeout,
-	}
+	client := createClient()
 	resp, err := client.Do(req)
 	if err != nil {
 		return fmt.Errorf("failed to perform request, error: %s", err)

@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"flag"
 	"fmt"
 	"os"
 	"path"
@@ -12,24 +13,11 @@ import (
 	bitriseConfigs "github.com/bitrise-io/bitrise/configs"
 	"github.com/bitrise-io/bitrise/plugins"
 	"github.com/bitrise-io/go-utils/log"
-	"github.com/codegangsta/cli"
 	"github.com/pkg/errors"
+	"github.com/urfave/cli"
 
 	ver "github.com/hashicorp/go-version"
 )
-
-var commands = []cli.Command{
-	cli.Command{
-		Name:   "set-auth-token",
-		Usage:  "Set API authentication token",
-		Action: setAuthToken,
-	},
-	cli.Command{
-		Name:   "apps",
-		Usage:  "Get apps for user",
-		Action: apps,
-	},
-}
 
 //=======================================
 // Functions
@@ -42,7 +30,7 @@ func printVersion(c *cli.Context) {
 func before(c *cli.Context) error {
 	configs.DataDir = os.Getenv(plugins.PluginInputDataDirKey)
 	configs.IsCIMode = (os.Getenv(bitriseConfigs.CIModeEnvKey) == "true")
-
+	flag.Parse()
 	return nil
 }
 
@@ -89,11 +77,17 @@ func setAuthToken(c *cli.Context) {
 }
 
 func apps(c *cli.Context) {
-	err := services.GetBitriseAppsForUser()
+	next := os.Getenv("NEXT")
+	limit := os.Getenv("LIMIT")
+	err := services.GetBitriseAppsForUser(next, limit)
 	if err != nil {
 		log.Errorf("Failed to fetch application list, error: %s", err)
 		os.Exit(1)
 	}
+}
+
+func builds(c *cli.Context) {
+
 }
 
 //=======================================

@@ -22,6 +22,7 @@ VERSION:
 COMMANDS:
      set-auth-token  Set API authentication token
      apps            Get apps for user
+     builds          Get builds for app
      help, h         Shows a list of commands or help for one command
 
 GLOBAL OPTIONS:
