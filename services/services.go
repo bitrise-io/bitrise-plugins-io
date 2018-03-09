@@ -82,4 +82,6 @@ func GetBitriseBuildsForApp(appSlug, next, limit string) error {
 		return errors.WithStack(err)
 	}
 	log.Infof(string(prettyResp))
+
+	return nil
 }
