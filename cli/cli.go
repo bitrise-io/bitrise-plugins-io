@@ -7,7 +7,6 @@ import (
 	"path"
 
 	"github.com/slapec93/bitrise-plugins-io/configs"
-	"github.com/slapec93/bitrise-plugins-io/services"
 	"github.com/slapec93/bitrise-plugins-io/version"
 
 	bitriseConfigs "github.com/bitrise-io/bitrise/configs"
@@ -81,23 +80,6 @@ func fetchFlagsForObjectListing(c *cli.Context) map[string]string {
 		"next":    getFlag(c, "NEXT", "next"),
 		"limit":   getFlag(c, "LIMIT", "limit"),
 		"sort_by": getFlag(c, "SORT_BY", "sort_by"),
-	}
-}
-
-func apps(c *cli.Context) {
-	err := services.GetBitriseAppsForUser(fetchFlagsForObjectListing(c))
-	if err != nil {
-		log.Errorf("Failed to fetch application list, error: %s", err)
-		os.Exit(1)
-	}
-}
-
-func builds(c *cli.Context) {
-	appSlug := getFlag(c, "APP_SLUG", "app-slug")
-	err := services.GetBitriseBuildsForApp(appSlug, fetchFlagsForObjectListing(c))
-	if err != nil {
-		log.Errorf("Failed to fetch build list, error: %s", err)
-		os.Exit(1)
 	}
 }
 

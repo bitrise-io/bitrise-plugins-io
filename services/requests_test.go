@@ -1,13 +1,14 @@
 package services
 
 import (
+	"net/url"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 )
 
 func Test_urlWithParameters(t *testing.T) {
-	url := "https://some.basic.url"
+	baseURL := "https://some.basic.url"
 
 	for _, tc := range []struct {
 		expectedURL string
@@ -15,7 +16,7 @@ func Test_urlWithParameters(t *testing.T) {
 	}{
 		// no query params
 		{
-			expectedURL: url,
+			expectedURL: baseURL,
 		},
 		// one parameter
 		{
@@ -42,7 +43,12 @@ func Test_urlWithParameters(t *testing.T) {
 			},
 		},
 	} {
-		generatedURL := urlWithParameters(url, tc.queryParams)
-		require.Equal(t, tc.expectedURL, generatedURL)
+		generatedURL, err := url.Parse(urlWithParameters(baseURL, tc.queryParams))
+		require.NoError(t, err)
+
+		t.Log("check params independent from order")
+		for key, value := range tc.queryParams {
+			require.Equal(t, value, generatedURL.Query().Get(key))
+		}
 	}
 }

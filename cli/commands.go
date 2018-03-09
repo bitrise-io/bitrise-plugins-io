@@ -1,6 +1,12 @@
 package cli
 
-import "github.com/urfave/cli"
+import (
+	"os"
+
+	"github.com/bitrise-io/go-utils/log"
+	"github.com/slapec93/bitrise-plugins-io/services"
+	"github.com/urfave/cli"
+)
 
 var commands = []cli.Command{
 	cli.Command{
@@ -33,4 +39,25 @@ var commands = []cli.Command{
 			},
 		},
 	},
+}
+
+//=======================================
+// Actions
+//=======================================
+
+func apps(c *cli.Context) {
+	err := services.GetBitriseAppsForUser(fetchFlagsForObjectListing(c))
+	if err != nil {
+		log.Errorf("Failed to fetch application list, error: %s", err)
+		os.Exit(1)
+	}
+}
+
+func builds(c *cli.Context) {
+	appSlug := getFlag(c, "APP_SLUG", "app-slug")
+	err := services.GetBitriseBuildsForApp(appSlug, fetchFlagsForObjectListing(c))
+	if err != nil {
+		log.Errorf("Failed to fetch build list, error: %s", err)
+		os.Exit(1)
+	}
 }
