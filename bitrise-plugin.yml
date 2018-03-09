@@ -6,8 +6,8 @@ description: |-
 
   The sent data only contains information about steps (id, version, runtime, error), NO logs or other data is included.
 executable:
-  osx: https://github.com/slapec93/bitrise-plugins-io/releases/download/0.0.2/bitrise-plugins-io-Darwin-x86_64
-  linux: https://github.com/slapec93/bitrise-plugins-io/releases/download/0.0.2/bitrise-plugins-io-Linux-x86_64
+  osx: https://github.com/slapec93/bitrise-plugins-io/releases/download/0.0.3/bitrise-plugins-io-Darwin-x86_64
+  linux: https://github.com/slapec93/bitrise-plugins-io/releases/download/0.0.3/bitrise-plugins-io-Linux-x86_64
 trigger: ""
 requirements:
 - tool: bitrise
