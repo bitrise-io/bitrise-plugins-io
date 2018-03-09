@@ -15,6 +15,7 @@ var commands = []cli.Command{
 		Flags: []cli.Flag{
 			nextFlag,
 			limitFlag,
+			sortByFlag,
 		},
 	},
 	cli.Command{
@@ -24,6 +25,7 @@ var commands = []cli.Command{
 		Flags: []cli.Flag{
 			nextFlag,
 			limitFlag,
+			sortByFlag,
 			cli.StringFlag{
 				Name:   "app-slug",
 				Usage:  "Slug of the app where the builds belong to",
