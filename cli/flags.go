@@ -17,6 +17,11 @@ var (
 		Usage:  "Limit parameter for paging",
 		EnvVar: "LIMIT",
 	}
+	sortByFlag = cli.StringFlag{
+		Name:   "sort_by",
+		Usage:  "Sort by parameter for listing",
+		EnvVar: "SORT_BY",
+	}
 )
 
 func getFlag(c *cli.Context, envName, flagName string) string {

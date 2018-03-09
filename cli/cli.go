@@ -76,10 +76,16 @@ func setAuthToken(c *cli.Context) {
 	log.Infof("\x1b[32;1mAuthentication token set successfully...\x1b[0m")
 }
 
+func fetchFlagsForObjectListing(c *cli.Context) map[string]string {
+	return map[string]string{
+		"next":    getFlag(c, "NEXT", "next"),
+		"limit":   getFlag(c, "LIMIT", "limit"),
+		"sort_by": getFlag(c, "SORT_BY", "sort_by"),
+	}
+}
+
 func apps(c *cli.Context) {
-	next := getFlag(c, "NEXT", "next")
-	limit := getFlag(c, "LIMIT", "limit")
-	err := services.GetBitriseAppsForUser(next, limit)
+	err := services.GetBitriseAppsForUser(fetchFlagsForObjectListing(c))
 	if err != nil {
 		log.Errorf("Failed to fetch application list, error: %s", err)
 		os.Exit(1)
@@ -88,9 +94,7 @@ func apps(c *cli.Context) {
 
 func builds(c *cli.Context) {
 	appSlug := getFlag(c, "APP_SLUG", "app-slug")
-	next := getFlag(c, "NEXT", "next")
-	limit := getFlag(c, "LIMIT", "limit")
-	err := services.GetBitriseBuildsForApp(appSlug, next, limit)
+	err := services.GetBitriseBuildsForApp(appSlug, fetchFlagsForObjectListing(c))
 	if err != nil {
 		log.Errorf("Failed to fetch build list, error: %s", err)
 		os.Exit(1)
@@ -103,7 +107,7 @@ func builds(c *cli.Context) {
 
 // Run ...
 func Run() {
-	// Parse cl
+	// Parse cld
 	cli.VersionPrinter = printVersion
 
 	app := cli.NewApp()
