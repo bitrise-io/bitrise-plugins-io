@@ -57,3 +57,22 @@ func GetBitriseAppsForUser(params map[string]string) error {
 func GetBitriseBuildsForApp(appSlug string, params map[string]string) error {
 	return getBitriseObjectList(fmt.Sprintf("apps/%s/builds", appSlug), params)
 }
+
+// ValidateAuthToken ...
+func ValidateAuthToken() error {
+	req, err := getRequest(fmt.Sprintf("%s/me", apiRootURL), map[string]string{})
+	if err != nil {
+		return errors.WithStack(err)
+	}
+
+	client := createClient()
+	resp, err := client.Do(req)
+	if err != nil {
+		return fmt.Errorf("failed to perform request, error: %s", err)
+	}
+
+	if resp.StatusCode < 200 || resp.StatusCode > 210 {
+		return fmt.Errorf("Invalid authentication token")
+	}
+	return nil
+}
