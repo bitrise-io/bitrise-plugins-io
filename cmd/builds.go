@@ -26,10 +26,10 @@ var buildsCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(buildsCmd)
-	buildsCmd.Flags().StringVarP(&nextFlag, "next", "", "", "Next parameter for paging")
-	buildsCmd.Flags().StringVarP(&limitFlag, "limit", "", "", "Limit parameter for paging")
-	buildsCmd.Flags().StringVarP(&sortByFlag, "sort_by", "", "", "Sort by parameter for listing")
-	buildsCmd.Flags().StringVarP(&appSlugFlag, "app_slug", "", "", "Slug of the app where the builds belong to")
+	buildsCmd.Flags().StringVar(&nextFlag, "next", "", "Next parameter for paging")
+	buildsCmd.Flags().StringVar(&limitFlag, "limit", "", "Limit parameter for paging")
+	buildsCmd.Flags().StringVar(&sortByFlag, "sort", "", "Sort by parameter for listing")
+	buildsCmd.Flags().StringVarP(&appSlugFlag, "app", "a", "", "Slug of the app where the builds belong to")
 }
 
 func builds() error {

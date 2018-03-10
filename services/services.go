@@ -21,7 +21,7 @@ func bitriseGetRequest(subURL string, params map[string]string) (map[string]inte
 	client := createClient()
 	resp, err := client.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("failed to perform request, error: %s", err)
+		return nil, errors.Errorf("failed to perform request, error: %s", err)
 	}
 
 	defer func() {
@@ -31,7 +31,7 @@ func bitriseGetRequest(subURL string, params map[string]string) (map[string]inte
 	}()
 
 	if resp.StatusCode < 200 || resp.StatusCode > 210 {
-		return nil, fmt.Errorf("fetching apps from Bitrise IO, failed with status code: %d: %s", resp.StatusCode, resp.Status)
+		return nil, errors.Errorf("fetching apps from Bitrise IO, failed with status code: %d: %s", resp.StatusCode, resp.Status)
 	}
 
 	response := map[string]interface{}{}
@@ -61,11 +61,11 @@ func ValidateAuthToken() error {
 	client := createClient()
 	resp, err := client.Do(req)
 	if err != nil {
-		return fmt.Errorf("failed to perform request, error: %s", err)
+		return errors.Errorf("failed to perform request, error: %s", err)
 	}
 
 	if resp.StatusCode < 200 || resp.StatusCode > 210 {
-		return fmt.Errorf("Invalid authentication token")
+		return errors.New("Invalid authentication token")
 	}
 	return nil
 }

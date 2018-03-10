@@ -28,9 +28,9 @@ var appsCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(appsCmd)
-	appsCmd.Flags().StringVarP(&nextFlag, "next", "", "", "Next parameter for paging")
-	appsCmd.Flags().StringVarP(&limitFlag, "limit", "", "", "Limit parameter for paging")
-	appsCmd.Flags().StringVarP(&sortByFlag, "sort_by", "", "", "Sort by parameter for listing")
+	appsCmd.Flags().StringVar(&nextFlag, "next", "", "Next parameter for paging")
+	appsCmd.Flags().StringVar(&limitFlag, "limit", "", "Limit parameter for paging")
+	appsCmd.Flags().StringVar(&sortByFlag, "sort", "", "Sort by parameter for listing")
 }
 
 func apps() error {
