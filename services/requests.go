@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/bitrise-core/bitrise-plugins-io/configs"
 	"github.com/pkg/errors"
-	"github.com/slapec93/bitrise-plugins-io/configs"
 )
 
 func createClient() http.Client {

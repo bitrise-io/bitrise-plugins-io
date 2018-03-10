@@ -6,16 +6,12 @@ import (
 	"os"
 	"path"
 
-	"github.com/slapec93/bitrise-plugins-io/configs"
-	"github.com/slapec93/bitrise-plugins-io/version"
-
-	bitriseConfigs "github.com/bitrise-io/bitrise/configs"
-	"github.com/bitrise-io/bitrise/plugins"
+	"github.com/bitrise-core/bitrise-plugins-io/configs"
+	"github.com/bitrise-core/bitrise-plugins-io/version"
 	"github.com/bitrise-io/go-utils/log"
+	ver "github.com/hashicorp/go-version"
 	"github.com/pkg/errors"
 	"github.com/urfave/cli"
-
-	ver "github.com/hashicorp/go-version"
 )
 
 //=======================================
@@ -27,8 +23,7 @@ func printVersion(c *cli.Context) {
 }
 
 func before(c *cli.Context) error {
-	configs.DataDir = os.Getenv(plugins.PluginInputDataDirKey)
-	configs.IsCIMode = (os.Getenv(bitriseConfigs.CIModeEnvKey) == "true")
+	configs.DataDir = os.Getenv("BITRISE_PLUGIN_INPUT_DATA_DIR")
 	flag.Parse()
 	return nil
 }

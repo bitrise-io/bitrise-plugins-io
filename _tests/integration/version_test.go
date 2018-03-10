@@ -3,9 +3,9 @@ package integration
 import (
 	"testing"
 
+	"github.com/bitrise-core/bitrise-plugins-io/version"
 	"github.com/bitrise-io/go-utils/command"
 	"github.com/bitrise-io/go-utils/pathutil"
-	"github.com/slapec93/bitrise-plugins-io/version"
 	"github.com/stretchr/testify/require"
 )
 
