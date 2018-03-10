@@ -93,11 +93,7 @@ workflows:
         inputs:
         - content: |-
             #!/bin/bash
-            set -e
-            set -x
-
-            # Install dependencies
-            go get -u github.com/tools/godep
+            set -ex
 
             # Check for unhandled errors
             go get -u github.com/kisielk/errcheck
@@ -105,11 +101,8 @@ workflows:
             # Go lint
             go get -u github.com/golang/lint/golint
 
-            # Check for unused constants, variables, functions and types
-            go get honnef.co/go/tools/cmd/unused
-
-            # Search for what could be simplified
-            go get honnef.co/go/tools/cmd/gosimple
+            # go-utils/command
+            go get -u github.com/bitrise-io/go-utils/command
 
   # ----------------------------------------------------------------
   # --- workflows for Releasing
