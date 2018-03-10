@@ -17,8 +17,6 @@ workflows:
     steps:
 
   go-test:
-    before_run:
-    - _install_testing_tools
     steps:
     - script:
         title: Export go files to test
@@ -34,6 +32,7 @@ workflows:
         - content: |-
             #!/bin/bash
             set -ex
+            go get -u github.com/kisielk/errcheck
             errcheck -asserts=true -blank=true $GOLIST_WITHOUT_VENDOR
     - script:
         title: Go lint
@@ -41,6 +40,7 @@ workflows:
         - content: |-
             #!/bin/bash
             set -ex
+            go get -u github.com/golang/lint/golint
             while read -r line; do
               echo "-> Linting: $line"
               golint_out="$(golint $line)"
@@ -56,7 +56,7 @@ workflows:
         - content: |-
             #!/bin/bash
             set -ex
-            go test $(go list ./... | grep -v vendor)
+            go test $(go list ./... | grep -v vendor -v integrationtests)
 
   integration-test:
     steps:
@@ -82,27 +82,7 @@ workflows:
             set -ex
 
             export INTEGRATION_TEST_BINARY_PATH="$CURRENT_BIN"
-            go test -v ./_tests/integration/...
-
-  _install_testing_tools:
-    title: Install testing tools
-    steps:
-    - script:
-        title: Install testing tools
-        run_if: ".IsCI"
-        inputs:
-        - content: |-
-            #!/bin/bash
-            set -ex
-
-            # Check for unhandled errors
-            go get -u github.com/kisielk/errcheck
-
-            # Go lint
-            go get -u github.com/golang/lint/golint
-
-            # go-utils/command
-            go get -u github.com/bitrise-io/go-utils/command
+            go test -v ./integrationtests/...
 
   # ----------------------------------------------------------------
   # --- workflows for Releasing
