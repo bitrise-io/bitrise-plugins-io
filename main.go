@@ -1,7 +1,7 @@
 package main
 
-import "github.com/bitrise-core/bitrise-plugins-io/cli"
+import "github.com/bitrise-core/bitrise-plugins-io/cmd"
 
 func main() {
-	cli.Run()
+	cmd.Execute()
 }
