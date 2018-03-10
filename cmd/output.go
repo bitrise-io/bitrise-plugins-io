@@ -3,6 +3,8 @@ package cmd
 import (
 	"encoding/json"
 	"fmt"
+
+	"github.com/bitrise-io/go-utils/log"
 )
 
 func printOutput(data []byte, pretty bool) {
@@ -28,7 +30,7 @@ func printOutput(data []byte, pretty bool) {
 
 func printErrorOutput(message string, pretty bool) {
 	if pretty {
-		fmt.Println(message)
+		log.Errorf(message)
 	} else {
 		fmt.Printf(`{"error":"%s"}`, message)
 	}
