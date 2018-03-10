@@ -1,6 +1,6 @@
 package main
 
-import "github.com/slapec93/bitrise-plugins-io/cli"
+import "github.com/bitrise-core/bitrise-plugins-io/cli"
 
 func main() {
 	cli.Run()

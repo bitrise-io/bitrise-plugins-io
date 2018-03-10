@@ -4,9 +4,9 @@ import (
 	"errors"
 	"os"
 
+	"github.com/bitrise-core/bitrise-plugins-io/configs"
+	"github.com/bitrise-core/bitrise-plugins-io/services"
 	"github.com/bitrise-io/go-utils/log"
-	"github.com/slapec93/bitrise-plugins-io/configs"
-	"github.com/slapec93/bitrise-plugins-io/services"
 	"github.com/urfave/cli"
 )
 

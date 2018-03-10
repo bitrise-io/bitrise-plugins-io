@@ -2,30 +2,6 @@
 
 
 [[projects]]
-  name = "github.com/Sirupsen/logrus"
-  packages = ["."]
-  revision = "d682213848ed68c0a260ca37d6dd5ace8423f5ba"
-  version = "v1.0.4"
-
-[[projects]]
-  name = "github.com/bitrise-io/bitrise"
-  packages = [
-    "configs",
-    "models",
-    "plugins",
-    "tools",
-    "version"
-  ]
-  revision = "1665b5db4709411986025d0fa70410819cae297a"
-  version = "1.9.0"
-
-[[projects]]
-  name = "github.com/bitrise-io/envman"
-  packages = ["models"]
-  revision = "455072a756cf80ab469ecfbcfd8c1dd614585cfc"
-  version = "1.1.8"
-
-[[projects]]
   branch = "master"
   name = "github.com/bitrise-io/go-utils"
   packages = [
@@ -34,18 +10,9 @@
     "errorutil",
     "fileutil",
     "log",
-    "parseutil",
-    "pathutil",
-    "pointers",
-    "progress"
+    "pathutil"
   ]
   revision = "b33f6bcef9b50045d7e62364b354584afc3ee329"
-
-[[projects]]
-  name = "github.com/bitrise-io/stepman"
-  packages = ["models"]
-  revision = "5609b753e57f9d2e4f18160fc2ee8667b1e34652"
-  version = "0.9.34"
 
 [[projects]]
   name = "github.com/davecgh/go-spew"
@@ -60,10 +27,10 @@
   revision = "4fe82ae3040f80a03d04d2cccb5606a626b8e1ee"
 
 [[projects]]
+  branch = "master"
   name = "github.com/pkg/errors"
   packages = ["."]
-  revision = "645ef00459ed84a119197bfb8d8205042c6df63d"
-  version = "v0.8.0"
+  revision = "30136e27e2ac8d167177e8a583aa4c3fea5be833"
 
 [[projects]]
   name = "github.com/pmezard/go-difflib"
@@ -72,40 +39,19 @@
   version = "v1.0.0"
 
 [[projects]]
-  name = "github.com/ryanuber/go-glob"
-  packages = ["."]
-  revision = "572520ed46dbddaed19ea3d9541bdd0494163693"
-  version = "v0.1"
-
-[[projects]]
+  branch = "master"
   name = "github.com/stretchr/testify"
   packages = [
     "assert",
     "require"
   ]
-  revision = "12b6f73e6084dad08a7c6e575284b177ecafbc71"
-  version = "v1.2.1"
+  revision = "b89eecf5ca5db6d3ba60b237ffe3df7bafb7662f"
 
 [[projects]]
+  branch = "master"
   name = "github.com/urfave/cli"
   packages = ["."]
-  revision = "cfb38830724cc34fedffe9a2a29fb54fa9169cd1"
-  version = "v1.20.0"
-
-[[projects]]
-  branch = "master"
-  name = "golang.org/x/crypto"
-  packages = ["ssh/terminal"]
-  revision = "91a49db82a88618983a78a06c1cbd4e00ab749ab"
-
-[[projects]]
-  branch = "master"
-  name = "golang.org/x/sys"
-  packages = [
-    "unix",
-    "windows"
-  ]
-  revision = "dd2ff4accc098aceecb86b36eaa7829b2a17b1c9"
+  revision = "8e01ec4cd3e2d84ab2fe90d8210528ffbb06d8ff"
 
 [[projects]]
   name = "gopkg.in/yaml.v2"
@@ -116,6 +62,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "eb720e9dfa4fbb7de08b7d4046085dfcdbab11f8bdc769a1ea77c2d5aab24405"
+  inputs-digest = "a8e91c042cd3b802b7897160c5ad8476cbbe0b348d4ad3d0364d42717fe53adb"
   solver-name = "gps-cdcl"
   solver-version = 1
