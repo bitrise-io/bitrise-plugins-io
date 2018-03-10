@@ -31,3 +31,11 @@ func getFlag(c *cli.Context, envName, flagName string) string {
 	}
 	return flagValue
 }
+
+func fetchFlagsForObjectListing(c *cli.Context) map[string]string {
+	return map[string]string{
+		"next":    getFlag(c, "NEXT", "next"),
+		"limit":   getFlag(c, "LIMIT", "limit"),
+		"sort_by": getFlag(c, "SORT_BY", "sort_by"),
+	}
+}
