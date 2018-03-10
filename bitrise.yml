@@ -56,7 +56,7 @@ workflows:
         - content: |-
             #!/bin/bash
             set -ex
-            go test $(go list ./... | grep -v vendor -v integrationtests)
+            go test $(go list ./... | grep -v vendor)
 
   integration-test:
     steps:
@@ -82,7 +82,7 @@ workflows:
             set -ex
 
             export INTEGRATION_TEST_BINARY_PATH="$CURRENT_BIN"
-            go test -v ./integrationtests/...
+            go test -v -tags=integration ./integrationtests/... -
 
   # ----------------------------------------------------------------
   # --- workflows for Releasing
