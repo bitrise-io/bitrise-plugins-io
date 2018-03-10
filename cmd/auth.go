@@ -11,11 +11,15 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var setAuthTokenCmd = &cobra.Command{
-	Use:   "set-auth-token",
-	Short: "Set API authentication token",
+var (
+	tokenFlag string
+)
+
+var authCmd = &cobra.Command{
+	Use:   "auth",
+	Short: "Authenticate",
 	Run: func(cmd *cobra.Command, args []string) {
-		if err := setAuthToken(); err != nil {
+		if err := auth(); err != nil {
 			log.Errorf(err.Error())
 			os.Exit(1)
 		}
@@ -23,27 +27,23 @@ var setAuthTokenCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(setAuthTokenCmd)
+	rootCmd.AddCommand(authCmd)
+	authCmd.Flags().StringVarP(&tokenFlag, "token", "", "", "Authentication token")
 }
 
-func setAuthToken() error {
-	log.Infof("")
-	log.Infof("Set authentication token...")
-
-	if len(os.Args) != 1 {
+func auth() error {
+	if tokenFlag == "" {
 		return errors.New("Failed to set authentication token, error: invalid number of arguments")
 	}
 
-	if err := configs.SetAPIToken(os.Args[0]); err != nil {
+	if err := configs.SetAPIToken(tokenFlag); err != nil {
 		return fmt.Errorf("Failed to set authentication token, error: %s", err)
 	}
-
-	log.Infof("Authentication token set successfully...")
 
 	err := services.ValidateAuthToken()
 	if err != nil {
 		return err
 	}
-	log.Infof("Authentication token validated successfully...")
+	log.Successf("authenticated")
 	return nil
 }
