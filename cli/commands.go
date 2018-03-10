@@ -62,11 +62,13 @@ func setAuthToken(c *cli.Context) {
 		os.Exit(1)
 	}
 
+	log.Infof("\x1b[32;1mAuthentication token set successfully...\x1b[0m")
+
 	err := services.ValidateAuthToken()
 	if err != nil {
-		log.Errorf("\x1b[33;1m%s\x1b[0m", err)
+		log.Errorf("\x1b[33;1m%s...\x1b[0m", err)
 	} else {
-		log.Infof("\x1b[32;1mAuthentication token set successfully...\x1b[0m")
+		log.Infof("\x1b[32;1mAuthentication token validated successfully...\x1b[0m")
 	}
 }
 
