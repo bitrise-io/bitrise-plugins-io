@@ -12,7 +12,7 @@ const (
 	apiRootURL = "https://api.bitrise.io/v0.1"
 )
 
-func getBitriseObjectList(subURL string, params map[string]string) error {
+func bitriseGetRequest(subURL string, params map[string]string) error {
 	req, err := getRequest(fmt.Sprintf("%s/%s", apiRootURL, subURL), params)
 	if err != nil {
 		return errors.WithStack(err)
@@ -50,12 +50,12 @@ func getBitriseObjectList(subURL string, params map[string]string) error {
 
 // GetBitriseAppsForUser ...
 func GetBitriseAppsForUser(params map[string]string) error {
-	return getBitriseObjectList("apps", params)
+	return bitriseGetRequest("apps", params)
 }
 
 // GetBitriseBuildsForApp ...
 func GetBitriseBuildsForApp(appSlug string, params map[string]string) error {
-	return getBitriseObjectList(fmt.Sprintf("apps/%s/builds", appSlug), params)
+	return bitriseGetRequest(fmt.Sprintf("apps/%s/builds", appSlug), params)
 }
 
 // ValidateAuthToken ...

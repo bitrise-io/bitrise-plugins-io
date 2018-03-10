@@ -32,7 +32,6 @@ func urlWithParameters(url string, queryParams map[string]string) (urlWithParams
 	return
 }
 
-// getRequest ...
 func getRequest(url string, queryParams map[string]string) (*http.Request, error) {
 	config, err := configs.ReadConfig()
 	if err != nil {
