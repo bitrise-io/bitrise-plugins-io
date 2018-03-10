@@ -12,16 +12,16 @@ const (
 	apiRootURL = "https://api.bitrise.io/v0.1"
 )
 
-func bitriseGetRequest(subURL string, params map[string]string) error {
+func bitriseGetRequest(subURL string, params map[string]string) (map[string]interface{}, error) {
 	req, err := getRequest(fmt.Sprintf("%s/%s", apiRootURL, subURL), params)
 	if err != nil {
-		return errors.WithStack(err)
+		return nil, errors.WithStack(err)
 	}
 
 	client := createClient()
 	resp, err := client.Do(req)
 	if err != nil {
-		return fmt.Errorf("failed to perform request, error: %s", err)
+		return nil, fmt.Errorf("failed to perform request, error: %s", err)
 	}
 
 	defer func() {
@@ -31,30 +31,23 @@ func bitriseGetRequest(subURL string, params map[string]string) error {
 	}()
 
 	if resp.StatusCode < 200 || resp.StatusCode > 210 {
-		return fmt.Errorf("fetching apps from Bitrise IO, failed with status code: %d: %s", resp.StatusCode, resp.Status)
+		return nil, fmt.Errorf("fetching apps from Bitrise IO, failed with status code: %d: %s", resp.StatusCode, resp.Status)
 	}
 
 	response := map[string]interface{}{}
 	if err = json.NewDecoder(resp.Body).Decode(&response); err != nil {
-		return errors.WithStack(err)
+		return nil, errors.WithStack(err)
 	}
-
-	prettyResp, err := json.MarshalIndent(response, "", "  ")
-	if err != nil {
-		return errors.WithStack(err)
-	}
-	log.Infof(string(prettyResp))
-
-	return nil
+	return response, nil
 }
 
 // GetBitriseAppsForUser ...
-func GetBitriseAppsForUser(params map[string]string) error {
+func GetBitriseAppsForUser(params map[string]string) (map[string]interface{}, error) {
 	return bitriseGetRequest("apps", params)
 }
 
 // GetBitriseBuildsForApp ...
-func GetBitriseBuildsForApp(appSlug string, params map[string]string) error {
+func GetBitriseBuildsForApp(appSlug string, params map[string]string) (map[string]interface{}, error) {
 	return bitriseGetRequest(fmt.Sprintf("apps/%s/builds", appSlug), params)
 }
 

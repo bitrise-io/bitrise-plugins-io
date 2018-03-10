@@ -10,20 +10,12 @@ import (
 	"github.com/bitrise-io/go-utils/pathutil"
 )
 
-//=======================================
-// Variables
-//=======================================
-
 var (
 	// DataDir ...
 	DataDir string
 	// IsCIMode ...
 	IsCIMode bool
 )
-
-//=======================================
-// Models
-//=======================================
 
 // ConfigModel ...
 type ConfigModel struct {
@@ -39,10 +31,6 @@ func NewConfigFromBytes(bytes []byte) (ConfigModel, error) {
 
 	return config, nil
 }
-
-//=======================================
-// Main
-//=======================================
 
 func getConfigFilePath() (string, error) {
 	if DataDir == "" {

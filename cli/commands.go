@@ -1,90 +1,47 @@
 package cli
 
 import (
-	"errors"
 	"os"
 
-	"github.com/bitrise-core/bitrise-plugins-io/configs"
-	"github.com/bitrise-core/bitrise-plugins-io/services"
-	"github.com/bitrise-io/go-utils/log"
 	"github.com/urfave/cli"
 )
 
 var commands = []cli.Command{
-	cli.Command{
-		Name:   "set-auth-token",
-		Usage:  "Set API authentication token",
-		Action: setAuthToken,
-	},
-	cli.Command{
-		Name:   "apps",
-		Usage:  "Get apps for user",
-		Action: apps,
-		Flags: []cli.Flag{
-			nextFlag,
-			limitFlag,
-			sortByFlag,
-		},
-	},
-	cli.Command{
-		Name:   "builds",
-		Usage:  "Get builds for app",
-		Action: builds,
-		Flags: []cli.Flag{
-			nextFlag,
-			limitFlag,
-			sortByFlag,
-			cli.StringFlag{
-				Name:   "app-slug",
-				Usage:  "Slug of the app where the builds belong to",
-				EnvVar: "APP_SLUG",
-			},
-		},
-	},
+	setAuthTokenCmd,
+	appsCmd,
+	buildsCmd,
 }
 
-//=======================================
-// Actions
-//=======================================
-
-func setAuthToken(c *cli.Context) {
-	log.Infof("")
-	log.Infof("\x1b[34;1mSet authentication token...\x1b[0m")
-
-	args := c.Args()
-	if len(args) != 1 {
-		log.Errorf("Failed to set authentication token, error: %s", errors.New("invalid number of arguments"))
-		os.Exit(1)
+var (
+	nextFlag = cli.StringFlag{
+		Name:   "next",
+		Usage:  "Next parameter for paging",
+		EnvVar: "NEXT",
 	}
-
-	if err := configs.SetAPIToken(args[0]); err != nil {
-		log.Errorf("Failed to set authentication token, error: %s", err)
-		os.Exit(1)
+	limitFlag = cli.Int64Flag{
+		Name:   "limit",
+		Usage:  "Limit parameter for paging",
+		EnvVar: "LIMIT",
 	}
-
-	log.Infof("\x1b[32;1mAuthentication token set successfully...\x1b[0m")
-
-	err := services.ValidateAuthToken()
-	if err != nil {
-		log.Errorf("\x1b[33;1m%s...\x1b[0m", err)
-	} else {
-		log.Infof("\x1b[32;1mAuthentication token validated successfully...\x1b[0m")
+	sortByFlag = cli.StringFlag{
+		Name:   "sort_by",
+		Usage:  "Sort by parameter for listing",
+		EnvVar: "SORT_BY",
 	}
+)
+
+func getFlag(c *cli.Context, envName, flagName string) string {
+	flagValue := c.String(flagName)
+	if len(flagValue) == 0 {
+		flagValue = os.Getenv(envName)
+	}
+	return flagValue
 }
 
-func apps(c *cli.Context) {
-	err := services.GetBitriseAppsForUser(fetchFlagsForObjectListing(c))
-	if err != nil {
-		log.Errorf("Failed to fetch application list, error: %s", err)
-		os.Exit(1)
-	}
-}
-
-func builds(c *cli.Context) {
-	appSlug := getFlag(c, "APP_SLUG", "app-slug")
-	err := services.GetBitriseBuildsForApp(appSlug, fetchFlagsForObjectListing(c))
-	if err != nil {
-		log.Errorf("Failed to fetch build list, error: %s", err)
-		os.Exit(1)
+func fetchFlagsForObjectListing(c *cli.Context) map[string]string {
+	return map[string]string{
+		"next":    getFlag(c, "NEXT", "next"),
+		"limit":   getFlag(c, "LIMIT", "limit"),
+		"sort_by": getFlag(c, "SORT_BY", "sort_by"),
 	}
 }
