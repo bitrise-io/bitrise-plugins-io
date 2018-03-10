@@ -28,6 +28,7 @@ var authCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(authCmd)
 	authCmd.Flags().StringVar(&tokenFlag, "token", "", "Authentication token")
+	authCmd.Flags().StringVar(&formatFlag, "format", "pretty", "Output format, one of: [pretty, json]")
 }
 
 func auth() error {
@@ -39,10 +40,15 @@ func auth() error {
 		return errors.Errorf("Failed to set authentication token, error: %s", err)
 	}
 
-	err := services.ValidateAuthToken()
+	response, err := services.ValidateAuthToken()
 	if err != nil {
 		return err
 	}
-	log.Successf("authenticated")
+
+	if response.Error != "" {
+		printErrorOutput(response.Error, formatFlag != "json")
+		return nil
+	}
+	printOutput(response.Data, formatFlag != "json")
 	return nil
 }

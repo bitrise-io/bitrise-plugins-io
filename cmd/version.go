@@ -11,10 +11,19 @@ var versionCmd = &cobra.Command{
 	Use:   "version",
 	Short: "Print version",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println(version.VERSION)
+		printVersion()
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(versionCmd)
+	versionCmd.Flags().StringVar(&formatFlag, "format", "pretty", "Output format, one of: [pretty, json]")
+}
+
+func printVersion() {
+	if formatFlag == "json" {
+		fmt.Printf(fmt.Sprintf(`{"data":"%s"}`, version.VERSION))
+	} else {
+		fmt.Println(version.VERSION)
+	}
 }
