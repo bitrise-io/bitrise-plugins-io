@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/bitrise-core/bitrise-plugins-io/services"
@@ -28,21 +27,28 @@ func init() {
 	rootCmd.AddCommand(buildsCmd)
 	buildsCmd.Flags().StringVar(&nextFlag, "next", "", "Next parameter for paging")
 	buildsCmd.Flags().StringVar(&limitFlag, "limit", "", "Limit parameter for paging")
-	buildsCmd.Flags().StringVar(&sortByFlag, "sort", "", "Sort by parameter for listing")
+	buildsCmd.Flags().StringVar(&sortFlag, "sort", "", "Sort by parameter for listing")
 	buildsCmd.Flags().StringVarP(&appSlugFlag, "app", "a", "", "Slug of the app where the builds belong to")
+	buildsCmd.Flags().StringVar(&formatFlag, "format", "pretty", "Output format, one of: [pretty, json]")
 }
 
 func builds() error {
 	params := map[string]string{
 		"next":    nextFlag,
 		"limit":   limitFlag,
-		"sort_by": sortByFlag,
+		"sort_by": sortFlag,
 	}
 
 	response, err := services.GetBitriseBuildsForApp(appSlugFlag, params)
 	if err != nil {
 		return err
 	}
-	fmt.Println(response)
+
+	if response.Error != "" {
+		printErrorOutput(response.Error, formatFlag != "json")
+		os.Exit(1)
+		return nil
+	}
+	printOutput(response.Data, formatFlag != "json")
 	return nil
 }

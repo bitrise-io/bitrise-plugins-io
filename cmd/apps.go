@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/bitrise-core/bitrise-plugins-io/services"
@@ -12,7 +11,8 @@ import (
 var (
 	nextFlag   string
 	limitFlag  string
-	sortByFlag string
+	sortFlag   string
+	formatFlag string
 )
 
 var appsCmd = &cobra.Command{
@@ -30,20 +30,27 @@ func init() {
 	rootCmd.AddCommand(appsCmd)
 	appsCmd.Flags().StringVar(&nextFlag, "next", "", "Next parameter for paging")
 	appsCmd.Flags().StringVar(&limitFlag, "limit", "", "Limit parameter for paging")
-	appsCmd.Flags().StringVar(&sortByFlag, "sort", "", "Sort by parameter for listing")
+	appsCmd.Flags().StringVar(&sortFlag, "sort", "", "Sort by parameter for listing")
+	appsCmd.Flags().StringVar(&formatFlag, "format", "pretty", "Output format, one of: [pretty, json]")
 }
 
 func apps() error {
 	params := map[string]string{
 		"next":    nextFlag,
 		"limit":   limitFlag,
-		"sort_by": sortByFlag,
+		"sort_by": sortFlag,
 	}
 
 	response, err := services.GetBitriseAppsForUser(params)
 	if err != nil {
 		return err
 	}
-	fmt.Println(response)
+
+	if response.Error != "" {
+		printErrorOutput(response.Error, formatFlag != "json")
+		os.Exit(1)
+		return nil
+	}
+	printOutput(response.Data, formatFlag != "json")
 	return nil
 }
