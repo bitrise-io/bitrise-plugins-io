@@ -14,7 +14,6 @@ import (
 var setAuthTokenCmd = &cobra.Command{
 	Use:   "set-auth-token",
 	Short: "Set API authentication token",
-	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
 		if err := setAuthToken(); err != nil {
 			log.Errorf(err.Error())

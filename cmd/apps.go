@@ -18,7 +18,6 @@ var (
 var appsCmd = &cobra.Command{
 	Use:   "apps",
 	Short: "Get apps for user",
-	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
 		if err := apps(); err != nil {
 			log.Errorf(err.Error())

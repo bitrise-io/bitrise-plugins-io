@@ -16,7 +16,6 @@ var (
 var buildsCmd = &cobra.Command{
 	Use:   "builds",
 	Short: "Get builds for app",
-	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
 		if err := builds(); err != nil {
 			log.Errorf(err.Error())
