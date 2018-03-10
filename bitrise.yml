@@ -82,7 +82,7 @@ workflows:
             set -ex
 
             export INTEGRATION_TEST_BINARY_PATH="$CURRENT_BIN"
-            go test -v -tags=integration ./integrationtests/... -
+            go test -v -tags=integration ./integrationtests/...
 
   # ----------------------------------------------------------------
   # --- workflows for Releasing
