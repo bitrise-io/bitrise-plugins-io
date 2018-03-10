@@ -46,6 +46,7 @@ func builds() error {
 
 	if response.Error != "" {
 		printErrorOutput(response.Error, formatFlag != "json")
+		os.Exit(1)
 		return nil
 	}
 	printOutput(response.Data, formatFlag != "json")
