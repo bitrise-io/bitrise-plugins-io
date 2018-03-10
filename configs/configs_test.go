@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func Test_SetAPIToken_and_readAPIToken(t *testing.T) {
+func TestSetReadAPIToken(t *testing.T) {
 	apiToken := "s0m3-ap1-t0k3n"
 	DataDir = "."
 

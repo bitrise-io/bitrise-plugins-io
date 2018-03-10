@@ -22,7 +22,7 @@ workflows:
         title: Export go files to test
         inputs:
         - content: |-
-            #!/bin/bash
+            #!/usr/bin/env bash
             set -ex
             no_vendor_paths="$(go list ./... | grep -v vendor)"
             envman add --key GOLIST_WITHOUT_VENDOR --value "$no_vendor_paths"
@@ -30,7 +30,7 @@ workflows:
         title: Err check
         inputs:
         - content: |-
-            #!/bin/bash
+            #!/usr/bin/env bash
             set -ex
             go get -u github.com/kisielk/errcheck
             errcheck -asserts=true -blank=true $GOLIST_WITHOUT_VENDOR
@@ -38,7 +38,7 @@ workflows:
         title: Go lint
         inputs:
         - content: |-
-            #!/bin/bash
+            #!/usr/bin/env bash
             set -ex
             go get -u github.com/golang/lint/golint
             while read -r line; do
@@ -54,7 +54,7 @@ workflows:
         title: Go test
         inputs:
         - content: |-
-            #!/bin/bash
+            #!/usr/bin/env bash
             set -ex
             go test $(go list ./... | grep -v vendor)
 
@@ -64,7 +64,7 @@ workflows:
         title: Go build
         inputs:
         - content: |-
-            #!/bin/bash
+            #!/usr/bin/env bash
             set -ex
 
             # build the new bitrise-plugins-io
@@ -77,7 +77,7 @@ workflows:
         title: Run integration tests
         inputs:
         - content: |-
-            #!/bin/bash
+            #!/usr/bin/env bash
             echo "Running integration tests ..."
             set -ex
 
@@ -98,7 +98,7 @@ workflows:
         title:
         inputs:
         - content: |
-            #!/bin/bash
+            #!/usr/bin/env bash
             set -ex
             go get -u github.com/bitrise-tools/releaseman
             export CI=true
@@ -115,7 +115,7 @@ workflows:
         title: create Linux and macOS (Darwin) bins, with version infos
         inputs:
         - content: |-
-            #!/bin/bash
+            #!/usr/bin/env bash
             set -e
 
             echo
@@ -163,7 +163,7 @@ workflows:
         title: Create binaries
         inputs:
         - content: |-
-            #!/bin/bash
+            #!/usr/bin/env bash
             set -e
 
             go get github.com/bitrise-io/go-utils/fileutil
@@ -185,7 +185,7 @@ workflows:
         title: Dependency update
         inputs:
         - content: |-
-            #!/bin/bash
+            #!/usr/bin/env bash
             set -ex
             go get -u -v github.com/golang/dep/cmd/dep
             dep ensure -v

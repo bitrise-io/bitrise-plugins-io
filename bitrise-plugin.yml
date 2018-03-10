@@ -1,13 +1,5 @@
 name: io
-description: |-
-  Submitting anonymized usage information.
-
-  This usage helps us identify any problems with the integrations.
-
-  The sent data only contains information about steps (id, version, runtime, error), NO logs or other data is included.
-executable:
-  osx: https://github.com/bitrise-core/bitrise-plugins-io/releases/download/0.0.3/bitrise-plugins-io-Darwin-x86_64
-  linux: https://github.com/bitrise-core/bitrise-plugins-io/releases/download/0.0.3/bitrise-plugins-io-Linux-x86_64
+description: Bitrise IO plugin
 trigger: ""
 requirements:
 - tool: bitrise

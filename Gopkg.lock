@@ -21,10 +21,10 @@
   version = "v1.1.0"
 
 [[projects]]
-  branch = "master"
-  name = "github.com/hashicorp/go-version"
+  name = "github.com/inconshreveable/mousetrap"
   packages = ["."]
-  revision = "4fe82ae3040f80a03d04d2cccb5606a626b8e1ee"
+  revision = "76626ae9c91c4f2a10f34cad8ce83ea42c93bb75"
+  version = "v1.0"
 
 [[projects]]
   branch = "master"
@@ -40,18 +40,24 @@
 
 [[projects]]
   branch = "master"
+  name = "github.com/spf13/cobra"
+  packages = ["."]
+  revision = "c6c44e6fdcc30161c7f4480754da7230d01c06e3"
+
+[[projects]]
+  name = "github.com/spf13/pflag"
+  packages = ["."]
+  revision = "e57e3eeb33f795204c1ca35f56c44f83227c6e66"
+  version = "v1.0.0"
+
+[[projects]]
+  branch = "master"
   name = "github.com/stretchr/testify"
   packages = [
     "assert",
     "require"
   ]
   revision = "b89eecf5ca5db6d3ba60b237ffe3df7bafb7662f"
-
-[[projects]]
-  branch = "master"
-  name = "github.com/urfave/cli"
-  packages = ["."]
-  revision = "8e01ec4cd3e2d84ab2fe90d8210528ffbb06d8ff"
 
 [[projects]]
   name = "gopkg.in/yaml.v2"
@@ -62,6 +68,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "a8e91c042cd3b802b7897160c5ad8476cbbe0b348d4ad3d0364d42717fe53adb"
+  inputs-digest = "3bb8ea7c6066afde51b475f06f0fad70f6cb7ddd01dda11a14a20cef95a97237"
   solver-name = "gps-cdcl"
   solver-version = 1

@@ -11,28 +11,13 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func Test_VersionTest(t *testing.T) {
-	t.Log("version flag")
-	{
-		tmpDir, err := pathutil.NormalizedOSTempDirPath("")
-		require.NoError(t, err)
+func TestVersion(t *testing.T) {
+	tmpDir, err := pathutil.NormalizedOSTempDirPath("")
+	require.NoError(t, err)
 
-		cmd := command.New(binPath(), "--version")
-		cmd.SetDir(tmpDir)
-		out, err := cmd.RunAndReturnTrimmedCombinedOutput()
-		require.NoError(t, err, out)
-		require.Equal(t, version.VERSION, out)
-	}
-
-	t.Log("version flag")
-	{
-		tmpDir, err := pathutil.NormalizedOSTempDirPath("")
-		require.NoError(t, err)
-
-		cmd := command.New(binPath(), "-v")
-		cmd.SetDir(tmpDir)
-		out, err := cmd.RunAndReturnTrimmedCombinedOutput()
-		require.NoError(t, err, out)
-		require.Equal(t, version.VERSION, out)
-	}
+	cmd := command.New(binPath(), "version")
+	cmd.SetDir(tmpDir)
+	out, err := cmd.RunAndReturnTrimmedCombinedOutput()
+	require.NoError(t, err, out)
+	require.Equal(t, version.VERSION, out)
 }

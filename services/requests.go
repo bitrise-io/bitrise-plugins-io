@@ -42,7 +42,7 @@ func getRequest(url string, queryParams map[string]string) (*http.Request, error
 	}
 	req, err := http.NewRequest("GET", urlWithParameters(url, queryParams), nil)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create request, error: %s", err)
+		return nil, errors.Errorf("failed to create request, error: %s", err)
 	}
 
 	req.Header.Set("Content-Type", "application/json")

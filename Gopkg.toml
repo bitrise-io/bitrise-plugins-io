@@ -3,19 +3,15 @@
   branch = "master"
 
 [[constraint]]
-  name = "github.com/hashicorp/go-version"
-  branch = "master"
-
-[[constraint]]
   name = "github.com/pkg/errors"
   branch = "master"
 
 [[constraint]]
-  name = "github.com/stretchr/testify"
+  name = "github.com/spf13/cobra"
   branch = "master"
 
 [[constraint]]
-  name = "github.com/urfave/cli"
+  name = "github.com/stretchr/testify"
   branch = "master"
 
 [[constraint]]
