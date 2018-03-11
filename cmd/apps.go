@@ -1,10 +1,10 @@
 package cmd
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/bitrise-core/bitrise-plugins-io/services"
+	"github.com/bitrise-io/go-utils/log"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 )
@@ -21,7 +21,7 @@ var appsCmd = &cobra.Command{
 	Short: "Get apps for user",
 	Run: func(cmd *cobra.Command, args []string) {
 		if err := apps(); err != nil {
-			fmt.Printf("ERR: %+v", err)
+			log.Errorf(err.Error())
 			os.Exit(1)
 		}
 	},
