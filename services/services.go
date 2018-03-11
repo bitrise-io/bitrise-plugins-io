@@ -6,12 +6,9 @@ import (
 	"io/ioutil"
 	"net/http"
 
+	"github.com/bitrise-core/bitrise-plugins-io/configs"
 	"github.com/bitrise-io/go-utils/log"
 	"github.com/pkg/errors"
-)
-
-const (
-	apiRootURL = "https://api.bitrise.io/v0.1"
 )
 
 // Response ...
@@ -39,7 +36,7 @@ func wrapResponse(response *http.Response) (Response, error) {
 }
 
 func bitriseGetRequest(subURL string, params map[string]string) (Response, error) {
-	req, err := request("GET", fmt.Sprintf("%s/%s", apiRootURL, subURL), params, nil)
+	req, err := request("GET", fmt.Sprintf("%s/%s", configs.APIRootURL, subURL), params, nil)
 	if err != nil {
 		return Response{}, errors.WithStack(err)
 	}
@@ -60,7 +57,7 @@ func bitriseGetRequest(subURL string, params map[string]string) (Response, error
 }
 
 func bitrisePostRequest(subURL string, requestBody map[string]interface{}) (Response, error) {
-	req, err := request("POST", fmt.Sprintf("%s/%s", apiRootURL, subURL), nil, requestBody)
+	req, err := request("POST", fmt.Sprintf("%s/%s", configs.APIRootURL, subURL), nil, requestBody)
 	if err != nil {
 		return Response{}, errors.WithStack(err)
 	}

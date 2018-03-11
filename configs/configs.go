@@ -13,6 +13,9 @@ import (
 var (
 	// DataDir ...
 	DataDir string
+
+	// APIRootURL ...
+	APIRootURL = "https://api.bitrise.io/v0.1"
 )
 
 // ConfigModel ...
