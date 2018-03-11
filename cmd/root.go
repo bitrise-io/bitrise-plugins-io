@@ -25,4 +25,8 @@ func Execute() {
 
 func init() {
 	configs.DataDir = os.Getenv("BITRISE_PLUGIN_INPUT_DATA_DIR")
+	apiRootURLParam := os.Getenv("BITRISE_API_ROOT_URL")
+	if apiRootURLParam != "" {
+		configs.APIRootURL = apiRootURLParam
+	}
 }
