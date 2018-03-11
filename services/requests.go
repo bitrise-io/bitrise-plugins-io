@@ -40,7 +40,7 @@ func request(method, url string, queryParams map[string]string, requestBody map[
 		return nil, errors.WithStack(err)
 	}
 	if len(config.BitriseAPIAuthenticationToken) < 1 {
-		return nil, errors.New("Bitrise API token isn't set, please set up with bitrise :io add-auth-token AUTH-TOKEN")
+		return nil, errors.New("Bitrise API token isn't set, please set up with bitrise :io auth AUTH-TOKEN")
 	}
 	requestBytes, err := json.Marshal(requestBody)
 	req, err := http.NewRequest(method, urlWithParameters(url, queryParams), bytes.NewBuffer(requestBytes))
