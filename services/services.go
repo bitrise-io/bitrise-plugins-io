@@ -99,3 +99,13 @@ func ValidateAuthToken() (Response, error) {
 func RegisterRepository(repoURL string) (Response, error) {
 	return bitrisePostRequest("apps/register", fmt.Sprintf(`{"repo_url":%s}`, repoURL))
 }
+
+// RegisterSSHKey ...
+func RegisterSSHKey(appSlug, publicKey, privateKey string) (Response, error) {
+	return bitrisePostRequest(fmt.Sprintf("apps/%s/register-ssh-key", repoURL), fmt.Sprintf(`{"auth_ssh_private_key":"%s","auth_ssh_public_key":"%s"}`, privateKey, publicKey))
+}
+
+// RegisterWebhook ...
+func RegisterWebhook(appSlug string) (Response, error) {
+	return bitrisePostRequest(fmt.Sprintf("apps/%s/register-webhook", repoURL), "")
+}
