@@ -59,8 +59,8 @@ func bitriseGetRequest(subURL string, params map[string]string) (Response, error
 	return wrapResponse(resp)
 }
 
-func bitrisePostRequest(subURL string, params map[string]string, requestBody string) (Response, error) {
-	req, err := request("POST", fmt.Sprintf("%s/%s", apiRootURL, subURL), params, &requestBody)
+func bitrisePostRequest(subURL string, params map[string]string, requestBody map[string]interface{}) (Response, error) {
+	req, err := request("POST", fmt.Sprintf("%s/%s", apiRootURL, subURL), params, requestBody)
 	if err != nil {
 		return Response{}, errors.WithStack(err)
 	}
@@ -97,15 +97,33 @@ func ValidateAuthToken() (Response, error) {
 
 // RegisterRepository ...
 func RegisterRepository(repoURL string) (Response, error) {
-	return bitrisePostRequest("apps/register", fmt.Sprintf(`{"repo_url":%s}`, repoURL))
+	return bitrisePostRequest("apps/register", map[string]interface{}{"repo_url": repoURL})
 }
 
 // RegisterSSHKey ...
 func RegisterSSHKey(appSlug, publicKey, privateKey string) (Response, error) {
-	return bitrisePostRequest(fmt.Sprintf("apps/%s/register-ssh-key", repoURL), fmt.Sprintf(`{"auth_ssh_private_key":"%s","auth_ssh_public_key":"%s"}`, privateKey, publicKey))
+	params := map[string]interface{}{
+		"auth_ssh_private_key": privateKey,
+		"auth_ssh_public_key":  publicKey,
+	}
+	return bitrisePostRequest(fmt.Sprintf("apps/%s/register-ssh-key", appSlug), params)
 }
 
 // RegisterWebhook ...
 func RegisterWebhook(appSlug string) (Response, error) {
-	return bitrisePostRequest(fmt.Sprintf("apps/%s/register-webhook", repoURL), "")
+	return bitrisePostRequest(fmt.Sprintf("apps/%s/register-webhook", appSlug), nil)
+}
+
+// FinishAppRegistration ...
+func FinishAppRegistration(appSlug, projectType, stackID string, organizationSlug *string, envs map[string]string) (Response, error) {
+	params := map[string]interface{}{
+		"mode":         "manual",
+		"project_type": projectType,
+		"stack_id":     stackID,
+		"envs":         envs,
+	}
+	if organizationSlug != nil {
+		params["oragenization_slug"] = *organizationSlug
+	}
+	return bitrisePostRequest(fmt.Sprintf("apps/%s/finish", appSlug), params)
 }
