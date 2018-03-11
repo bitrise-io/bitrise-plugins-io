@@ -10,7 +10,6 @@ import (
 
 	"github.com/bitrise-core/bitrise-plugins-io/configs"
 	"github.com/bitrise-io/go-utils/colorstring"
-	"github.com/bitrise-team/den/utils"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 )
@@ -46,13 +45,21 @@ func loadFullLog(fullLogURL string) ([]byte, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "Failed to send request")
 	}
-	defer utils.ResponseBodyCloser(resp)
+	defer responseBodyCloser(resp)
 
 	data, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 	return data, nil
+}
+
+// responseBodyCloser closes a HTTP response body with logging the error
+func responseBodyCloser(resp *http.Response) {
+	if err := resp.Body.Close(); err != nil {
+		// TODO: modify this to use logrus
+		log.Printf("Failed to close response body: %+v", errors.WithStack(err))
+	}
 }
 
 func getLog(cmd *cobra.Command, args []string) error {
@@ -89,7 +96,7 @@ func getLog(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return errors.Wrap(err, "Failed to send request")
 	}
-	defer utils.ResponseBodyCloser(resp)
+	defer responseBodyCloser(resp)
 
 	if resp.StatusCode == 200 {
 		data, err := ioutil.ReadAll(resp.Body)
