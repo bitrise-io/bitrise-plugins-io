@@ -115,12 +115,13 @@ func RegisterWebhook(appSlug string) (Response, error) {
 }
 
 // FinishAppRegistration ...
-func FinishAppRegistration(appSlug, projectType, stackID string, organizationSlug *string, envs map[string]string) (Response, error) {
+func FinishAppRegistration(appSlug, projectType, stackID string, organizationSlug *string, envs map[string]string, config map[string]interface{}) (Response, error) {
 	params := map[string]interface{}{
 		"mode":         "manual",
 		"project_type": projectType,
 		"stack_id":     stackID,
 		"envs":         envs,
+		"config":       config,
 	}
 	if organizationSlug != nil {
 		params["oragenization_slug"] = *organizationSlug
