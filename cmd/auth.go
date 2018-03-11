@@ -11,14 +11,27 @@ import (
 )
 
 var (
-	tokenFlag string
+	flagAPIToken string
 )
 
 var authCmd = &cobra.Command{
 	Use:   "auth",
 	Short: "Authenticate",
 	Run: func(cmd *cobra.Command, args []string) {
-		if err := auth(); err != nil {
+		tokenToAuth := ""
+		if flagAPIToken != "" {
+			if len(args) > 0 {
+				log.Errorf("Both the --token flag as well as a token arg (%+v) is specified. Only one should be", args)
+				os.Exit(1)
+			}
+			tokenToAuth = flagAPIToken
+		} else if len(args) == 1 {
+			tokenToAuth = args[0]
+		} else if len(args) > 1 {
+			log.Errorf("More than one argument specified (%+v), only one (the API Token) should be", args)
+		}
+
+		if err := auth(tokenToAuth); err != nil {
 			log.Errorf(err.Error())
 			os.Exit(1)
 		}
@@ -27,16 +40,16 @@ var authCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(authCmd)
-	authCmd.Flags().StringVar(&tokenFlag, "token", "", "Authentication token")
+	authCmd.Flags().StringVar(&flagAPIToken, "token", "", "Authentication token")
 	authCmd.Flags().StringVar(&formatFlag, "format", "pretty", "Output format, one of: [pretty, json]")
 }
 
-func auth() error {
-	if tokenFlag == "" {
-		return errors.New("Failed to set authentication token, error: invalid number of arguments")
+func auth(apiToken string) error {
+	if apiToken == "" {
+		return errors.New("Failed to set authentication token, error: invalid number of arguments / no API Token specified")
 	}
 
-	if err := configs.SetAPIToken(tokenFlag); err != nil {
+	if err := configs.SetAPIToken(apiToken); err != nil {
 		return errors.Errorf("Failed to set authentication token, error: %s", err)
 	}
 
