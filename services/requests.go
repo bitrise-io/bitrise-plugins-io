@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"time"
 
@@ -42,8 +43,16 @@ func request(method, url string, queryParams map[string]string, requestBody map[
 	if len(config.BitriseAPIAuthenticationToken) < 1 {
 		return nil, errors.New("Bitrise API token isn't set, please set up with bitrise :io auth AUTH-TOKEN")
 	}
-	requestBytes, err := json.Marshal(requestBody)
-	req, err := http.NewRequest(method, urlWithParameters(url, queryParams), bytes.NewBuffer(requestBytes))
+
+	var bodyReader io.Reader
+	if requestBody != nil {
+		requestBytes, err := json.Marshal(requestBody)
+		if err != nil {
+			return nil, errors.WithStack(err)
+		}
+		bodyReader = bytes.NewBuffer(requestBytes)
+	}
+	req, err := http.NewRequest(method, urlWithParameters(url, queryParams), bodyReader)
 	if err != nil {
 		return nil, errors.Errorf("failed to create request, error: %s", err)
 	}
