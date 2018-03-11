@@ -59,8 +59,8 @@ func bitriseGetRequest(subURL string, params map[string]string) (Response, error
 	return wrapResponse(resp)
 }
 
-func bitrisePostRequest(subURL string, params map[string]string, requestBody map[string]interface{}) (Response, error) {
-	req, err := request("POST", fmt.Sprintf("%s/%s", apiRootURL, subURL), params, requestBody)
+func bitrisePostRequest(subURL string, requestBody map[string]interface{}) (Response, error) {
+	req, err := request("POST", fmt.Sprintf("%s/%s", apiRootURL, subURL), nil, requestBody)
 	if err != nil {
 		return Response{}, errors.WithStack(err)
 	}
