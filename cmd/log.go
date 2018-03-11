@@ -6,10 +6,10 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"strings"
 
-	"github.com/bitrise-core/bitrise-plugins-io/configs"
-	"github.com/bitrise-io/go-utils/colorstring"
+	"github.com/bitrise-core/bitrise-plugins-io/services"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 )
@@ -76,53 +76,34 @@ func getLog(cmd *cobra.Command, args []string) error {
 	}
 	fmt.Printf("App: %s | Build: %s\n", appSlugFlag, buildSlugFlag)
 
-	serverURL := "https://api.bitrise.io/v0.1"
-
-	config, err := configs.ReadConfig()
+	fmt.Println("Retrieving Build and Log info ...")
+	params := map[string]string{}
+	response, err := services.GetBuildLogInfo(appSlugFlag, buildSlugFlag, params)
 	if err != nil {
 		return errors.WithStack(err)
 	}
 
-	req, err := http.NewRequest("GET", fmt.Sprintf("%s/apps/%s/builds/%s/log", serverURL, appSlugFlag, buildSlugFlag), nil)
+	if response.Error != "" {
+		printErrorOutput(response.Error, formatFlag != "json")
+		os.Exit(1)
+		return nil
+	}
+
+	logInfo := struct {
+		ExpiringRawLogURL string `json:"expiring_raw_log_url"`
+		IsArchived        bool   `json:"is_archived"`
+	}{}
+
+	if err := json.Unmarshal(response.Data, &logInfo); err != nil {
+		return errors.WithStack(err)
+	}
+
+	fmt.Println("Downloading full log ...")
+	fullLogData, err := loadFullLog(logInfo.ExpiringRawLogURL)
 	if err != nil {
-		return errors.Wrap(err, "Failed to create request")
+		return errors.WithStack(err)
 	}
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", fmt.Sprintf("token %s", config.BitriseAPIAuthenticationToken))
 
-	fmt.Println("Retrieving Build and Log info ...")
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return errors.Wrap(err, "Failed to send request")
-	}
-	defer responseBodyCloser(resp)
-
-	if resp.StatusCode == 200 {
-		data, err := ioutil.ReadAll(resp.Body)
-		if err != nil {
-			return errors.WithStack(err)
-		}
-
-		logInfo := struct {
-			ExpiringRawLogURL string `json:"expiring_raw_log_url"`
-			IsArchived        bool   `json:"is_archived"`
-		}{}
-
-		if err := json.Unmarshal(data, &logInfo); err != nil {
-			return errors.WithStack(err)
-		}
-
-		fmt.Println("Downloading full log ...")
-		fullLogData, err := loadFullLog(logInfo.ExpiringRawLogURL)
-		if err != nil {
-			return errors.WithStack(err)
-		}
-
-		fmt.Printf("LOG: %s", fullLogData)
-	} else {
-		log.Printf(colorstring.Red("RESPONSE:")+" %+v", resp)
-	}
-	fmt.Println()
+	fmt.Printf("LOG: %s", fullLogData)
 	return nil
 }
