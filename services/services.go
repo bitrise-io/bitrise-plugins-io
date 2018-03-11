@@ -39,7 +39,28 @@ func wrapResponse(response *http.Response) (Response, error) {
 }
 
 func bitriseGetRequest(subURL string, params map[string]string) (Response, error) {
-	req, err := getRequest(fmt.Sprintf("%s/%s", apiRootURL, subURL), params)
+	req, err := request("GET", fmt.Sprintf("%s/%s", apiRootURL, subURL), params, nil)
+	if err != nil {
+		return Response{}, errors.WithStack(err)
+	}
+
+	client := createClient()
+	resp, err := client.Do(req)
+	if err != nil {
+		return Response{}, errors.Errorf("failed to perform request, error: %s", err)
+	}
+
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			log.Errorf("failed to close response body, error: %#v", err)
+		}
+	}()
+
+	return wrapResponse(resp)
+}
+
+func bitrisePostRequest(subURL string, params map[string]string, requestBody string) (Response, error) {
+	req, err := request("POST", fmt.Sprintf("%s/%s", apiRootURL, subURL), params, &requestBody)
 	if err != nil {
 		return Response{}, errors.WithStack(err)
 	}
@@ -72,4 +93,9 @@ func GetBitriseBuildsForApp(appSlug string, params map[string]string) (Response,
 // ValidateAuthToken ...
 func ValidateAuthToken() (Response, error) {
 	return bitriseGetRequest("me", nil)
+}
+
+// RegisterRepository ...
+func RegisterRepository(repoURL string) (Response, error) {
+	return bitrisePostRequest("apps/register", fmt.Sprintf(`{"repo_url":%s}`, repoURL))
 }
