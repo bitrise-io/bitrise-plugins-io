@@ -49,7 +49,7 @@ func init() {
 
 func auth(apiToken string) error {
 	if apiToken == "" {
-		return errors.New("Failed to set authentication token, error: invalid number of arguments / no API Token specified")
+		return errors.New("Failed to set authentication token, error: no API Token specified")
 	}
 
 	if err := configs.SetAPIToken(apiToken); err != nil {
