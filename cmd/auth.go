@@ -18,6 +18,11 @@ var authCmd = &cobra.Command{
 	Use:   "auth",
 	Short: "Authenticate",
 	Run: func(cmd *cobra.Command, args []string) {
+		if len(args) > 1 {
+			log.Errorf("More than one argument specified (%+v), only one (the API Token) should be", args)
+			os.Exit(1)
+		}
+
 		tokenToAuth := ""
 		if flagAPIToken != "" {
 			if len(args) > 0 {
@@ -27,8 +32,6 @@ var authCmd = &cobra.Command{
 			tokenToAuth = flagAPIToken
 		} else if len(args) == 1 {
 			tokenToAuth = args[0]
-		} else if len(args) > 1 {
-			log.Errorf("More than one argument specified (%+v), only one (the API Token) should be", args)
 		}
 
 		if err := auth(tokenToAuth); err != nil {
