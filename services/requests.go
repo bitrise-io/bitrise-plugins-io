@@ -1,6 +1,8 @@
 package services
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"time"
@@ -32,7 +34,7 @@ func urlWithParameters(url string, queryParams map[string]string) (urlWithParams
 	return
 }
 
-func getRequest(url string, queryParams map[string]string) (*http.Request, error) {
+func request(method, url string, queryParams map[string]string, requestBody map[string]interface{}) (*http.Request, error) {
 	config, err := configs.ReadConfig()
 	if err != nil {
 		return nil, errors.WithStack(err)
@@ -40,7 +42,8 @@ func getRequest(url string, queryParams map[string]string) (*http.Request, error
 	if len(config.BitriseAPIAuthenticationToken) < 1 {
 		return nil, errors.New("Bitrise API token isn't set, please set up with bitrise :io auth AUTH-TOKEN")
 	}
-	req, err := http.NewRequest("GET", urlWithParameters(url, queryParams), nil)
+	requestBytes, err := json.Marshal(requestBody)
+	req, err := http.NewRequest(method, urlWithParameters(url, queryParams), bytes.NewBuffer(requestBytes))
 	if err != nil {
 		return nil, errors.Errorf("failed to create request, error: %s", err)
 	}
