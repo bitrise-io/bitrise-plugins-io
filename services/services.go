@@ -29,7 +29,7 @@ func wrapResponse(response *http.Response) (Response, error) {
 
 	data, err := ioutil.ReadAll(response.Body)
 	if err != nil {
-		return Response{}, err
+		return Response{}, errors.WithStack(err)
 	}
 
 	return Response{Data: data}, nil
@@ -85,6 +85,11 @@ func GetBitriseAppsForUser(params map[string]string) (Response, error) {
 // GetBitriseBuildsForApp ...
 func GetBitriseBuildsForApp(appSlug string, params map[string]string) (Response, error) {
 	return bitriseGetRequest(fmt.Sprintf("apps/%s/builds", appSlug), params)
+}
+
+// GetBuildLogInfo ...
+func GetBuildLogInfo(appSlug, buildSlug string, params map[string]string) (Response, error) {
+	return bitriseGetRequest(fmt.Sprintf("apps/%s/builds/%s/log", appSlug, buildSlug), params)
 }
 
 // ValidateAuthToken ...

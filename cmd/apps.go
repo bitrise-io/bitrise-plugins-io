@@ -5,6 +5,7 @@ import (
 
 	"github.com/bitrise-core/bitrise-plugins-io/services"
 	"github.com/bitrise-io/go-utils/log"
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 )
 
@@ -43,7 +44,7 @@ func apps() error {
 
 	response, err := services.GetBitriseAppsForUser(params)
 	if err != nil {
-		return err
+		return errors.WithStack(err)
 	}
 
 	if response.Error != "" {
