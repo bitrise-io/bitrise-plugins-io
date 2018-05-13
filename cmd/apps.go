@@ -30,7 +30,7 @@ var appsCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(appsCmd)
 	appsCmd.Flags().StringVar(&nextFlag, "next", "", "Next parameter for paging")
-	appsCmd.Flags().StringVar(&limitFlag, "limit", "", "Limit parameter for paging")
+	appsCmd.Flags().StringVarP(&limitFlag, "limit", "l", "", "Limit parameter for paging")
 	appsCmd.Flags().StringVar(&sortFlag, "sort", "", "Sort by parameter for listing")
 	appsCmd.Flags().StringVar(&formatFlag, "format", "pretty", "Output format, one of: [pretty, json]")
 }
