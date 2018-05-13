@@ -26,7 +26,7 @@ var buildsCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(buildsCmd)
 	buildsCmd.Flags().StringVar(&nextFlag, "next", "", "Next parameter for paging")
-	buildsCmd.Flags().StringVar(&limitFlag, "limit", "", "Limit parameter for paging")
+	buildsCmd.Flags().StringVarP(&limitFlag, "limit", "l", "", "Limit parameter for paging")
 	buildsCmd.Flags().StringVar(&sortFlag, "sort", "", "Sort by parameter for listing")
 	buildsCmd.Flags().StringVarP(&appSlugFlag, "app", "a", "", "Slug of the app where the builds belong to")
 	buildsCmd.Flags().StringVar(&formatFlag, "format", "pretty", "Output format, one of: [pretty, json]")
