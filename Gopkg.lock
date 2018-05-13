@@ -7,12 +7,13 @@
   packages = [
     "colorstring",
     "command",
+    "envutil",
     "errorutil",
     "fileutil",
     "log",
     "pathutil"
   ]
-  revision = "b33f6bcef9b50045d7e62364b354584afc3ee329"
+  revision = "2d657206204605ce3b86124c33fea53c3e380d78"
 
 [[projects]]
   name = "github.com/davecgh/go-spew"
@@ -30,7 +31,7 @@
   branch = "master"
   name = "github.com/pkg/errors"
   packages = ["."]
-  revision = "30136e27e2ac8d167177e8a583aa4c3fea5be833"
+  revision = "816c9085562cd7ee03e7f8188a1cfd942858cded"
 
 [[projects]]
   name = "github.com/pmezard/go-difflib"
@@ -42,13 +43,13 @@
   branch = "master"
   name = "github.com/spf13/cobra"
   packages = ["."]
-  revision = "c6c44e6fdcc30161c7f4480754da7230d01c06e3"
+  revision = "ef82de70bb3f60c65fb8eebacbb2d122ef517385"
 
 [[projects]]
   name = "github.com/spf13/pflag"
   packages = ["."]
-  revision = "e57e3eeb33f795204c1ca35f56c44f83227c6e66"
-  version = "v1.0.0"
+  revision = "583c0c0531f06d5278b7d917446061adc344b5cd"
+  version = "v1.0.1"
 
 [[projects]]
   branch = "master"
@@ -57,17 +58,17 @@
     "assert",
     "require"
   ]
-  revision = "b89eecf5ca5db6d3ba60b237ffe3df7bafb7662f"
+  revision = "c679ae2cc0cb27ec3293fea7e254e47386f05d69"
 
 [[projects]]
   name = "gopkg.in/yaml.v2"
   packages = ["."]
-  revision = "7f97868eec74b32b0982dd158a51a446d1da7eb5"
-  version = "v2.1.1"
+  revision = "5420a8b6744d3b0345ab293f6fcba19c978f1183"
+  version = "v2.2.1"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "3bb8ea7c6066afde51b475f06f0fad70f6cb7ddd01dda11a14a20cef95a97237"
+  inputs-digest = "8b3bca6ada5d8a6a938b0413bb4ba4de169e9ac4ae6a00186175954cec83f0bc"
   solver-name = "gps-cdcl"
   solver-version = 1
