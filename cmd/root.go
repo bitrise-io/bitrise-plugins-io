@@ -5,13 +5,25 @@ import (
 	"os"
 
 	"github.com/bitrise-core/bitrise-plugins-io/configs"
+	"github.com/bitrise-io/go-utils/envutil"
 	"github.com/spf13/cobra"
 )
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "bitrise-plugins-io",
-	Short: "Bitrise IO plugin",
+	Short: "Command Line User Interface for bitrise.io",
+	Long: `Command Line User Interface for bitrise.io
+
+--------------------------------------------------
+If you use it as a Bitrise CLI plugin:
+  $ bitrise :io [command]
+
+If you use it as a stand-alone tool:
+  $ env BITRISE_PLUGIN_INPUT_DATA_DIR=/path/where/login/data/should/be/stored \
+    bitrise-plugins-io [command]
+--------------------------------------------------
+`,
 }
 
 // Execute adds all child commands to the root command sets flags appropriately.
@@ -24,9 +36,9 @@ func Execute() {
 }
 
 func init() {
-	configs.DataDir = os.Getenv("BITRISE_PLUGIN_INPUT_DATA_DIR")
-	apiRootURLParam := os.Getenv("BITRISE_API_ROOT_URL")
-	if apiRootURLParam != "" {
-		configs.APIRootURL = apiRootURLParam
-	}
+	rootCmd.PersistentFlags().StringVar(&configs.DataDir, "bitrise-plugin-input-data-dir", "", "Bitrise Plugin data dir ($BITRISE_PLUGIN_INPUT_DATA_DIR)")
+	configs.DataDir = envutil.GetenvWithDefault("BITRISE_PLUGIN_INPUT_DATA_DIR", configs.DataDir)
+
+	rootCmd.PersistentFlags().StringVar(&configs.APIRootURL, "api-root-url", "https://api.bitrise.io/v0.1", "API root URL ($BITRISE_API_ROOT_URL)")
+	configs.APIRootURL = envutil.GetenvWithDefault("BITRISE_API_ROOT_URL", configs.APIRootURL)
 }
