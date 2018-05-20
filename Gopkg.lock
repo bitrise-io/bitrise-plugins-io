@@ -40,10 +40,10 @@
   version = "v1.0.0"
 
 [[projects]]
-  branch = "master"
   name = "github.com/spf13/cobra"
   packages = ["."]
   revision = "ef82de70bb3f60c65fb8eebacbb2d122ef517385"
+  version = "v0.0.3"
 
 [[projects]]
   name = "github.com/spf13/pflag"
@@ -69,6 +69,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "8b3bca6ada5d8a6a938b0413bb4ba4de169e9ac4ae6a00186175954cec83f0bc"
+  inputs-digest = "045f8c315aa90d905818edd9c4d895cea31fc49c473bfc7bf341175eee8a6f8d"
   solver-name = "gps-cdcl"
   solver-version = 1
