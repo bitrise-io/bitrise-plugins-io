@@ -1,10 +1,7 @@
 package cmd
 
 import (
-	"os"
-
 	"github.com/bitrise-core/bitrise-plugins-io/configs"
-	"github.com/bitrise-core/bitrise-plugins-io/services"
 	"github.com/bitrise-io/go-utils/colorstring"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
@@ -43,16 +40,5 @@ func auth(cmd *cobra.Command, args []string) error {
 		return errors.Errorf("Failed to set authentication token, error: %s", err)
 	}
 
-	response, err := services.ValidateAuthToken()
-	if err != nil {
-		return err
-	}
-
-	if response.Error != "" {
-		printErrorOutput(response.Error, formatFlag != "json")
-		os.Exit(1)
-		return nil
-	}
-	printOutput(response.Data, formatFlag != "json")
-	return nil
+	return errors.WithStack(whoami())
 }
