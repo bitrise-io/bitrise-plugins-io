@@ -21,15 +21,14 @@ var rootCmd = &cobra.Command{
 	Short: "Command Line User Interface for bitrise.io",
 	Long: `Command Line User Interface for bitrise.io
 
---------------------------------------------------
-If you use it as a Bitrise CLI plugin:
-  $ bitrise :io [command]
-
-If you use it as a stand-alone tool:
-  $ env BITRISE_PLUGIN_INPUT_DATA_DIR=/path/where/login/data/should/be/stored \
-    bitrise-plugins-io [command]
---------------------------------------------------
+Uses the official Bitrise API (v0.1 docs: https://devcenter.bitrise.io/api/v0.1/ )
 `,
+	Example: `  If you use it as a Bitrise CLI plugin:
+    $ bitrise :io [command]
+
+  If you use it as a stand-alone tool:
+    $ env BITRISE_PLUGIN_INPUT_DATA_DIR=/path/where/login/data/should/be/stored \
+      bitrise-plugins-io [command]`,
 }
 
 // Execute adds all child commands to the root command sets flags appropriately.
