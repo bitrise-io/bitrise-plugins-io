@@ -55,15 +55,16 @@ type BuildsListReponseModel struct {
 }
 
 func coloredStatusText(statusText string) string {
+	colorFN := colorstring.Blue
 	switch statusText {
 	case "success":
-		return colorstring.Green(statusText)
+		colorFN = colorstring.Green
 	case "error":
-		return colorstring.Red(statusText)
+		colorFN = colorstring.Red
 	case "aborted":
-		return colorstring.Yellow(statusText)
+		colorFN = colorstring.Yellow
 	}
-	return statusText
+	return colorFN(statusText)
 }
 
 func prettyBuildMessageText(msg string) string {
