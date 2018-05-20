@@ -12,13 +12,9 @@ import (
 )
 
 var (
-	nextFlag  string
-	limitFlag string
-	sortFlag  string
-)
-
-const (
-	sortFlagDefault = "last_build_at"
+	appsNextFlag  string
+	appsLimitFlag string
+	appsSortFlag  string
 )
 
 var appsCmd = &cobra.Command{
@@ -34,13 +30,13 @@ var appsCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(appsCmd)
-	appsCmd.Flags().StringVar(&nextFlag, "next", "", "Next parameter for paging")
-	appsCmd.Flags().StringVarP(&limitFlag, "limit", "l", "", "Limit parameter for paging")
-	appsCmd.Flags().StringVar(&sortFlag, "sort", sortFlagDefault, "Sort by parameter for listing. Options: [created_at, last_build_at]")
+	appsCmd.Flags().StringVar(&appsNextFlag, "next", "", "Next parameter for paging")
+	appsCmd.Flags().StringVarP(&appsLimitFlag, "limit", "l", "", "Limit parameter for paging")
+	appsCmd.Flags().StringVar(&appsSortFlag, "sort", "last_build_at", "Sort by parameter for listing. Options: [created_at, last_build_at]")
 }
 
-// AppsResponseModel ...
-type AppsResponseModel struct {
+// AppsListResponseModel ...
+type AppsListResponseModel struct {
 	Data []struct {
 		Title string `json:"title"`
 		Slug  string `json:"slug"`
@@ -51,7 +47,7 @@ type AppsResponseModel struct {
 }
 
 // Pretty ...
-func (respModel *AppsResponseModel) Pretty() string {
+func (respModel *AppsListResponseModel) Pretty() string {
 	s := ""
 	for _, aAppData := range respModel.Data {
 		s += fmt.Sprintf("%s / %s (%s)\n", aAppData.Owner.Name, colorstring.Green(aAppData.Title), aAppData.Slug)
@@ -60,16 +56,10 @@ func (respModel *AppsResponseModel) Pretty() string {
 }
 
 func apps() error {
-	// for some reason the Cobra Flag default doesn't seem to work for the sortFlag var
-	// so doing it the manual way, ensuring default is set if needed
-	if sortFlag == "" {
-		sortFlag = sortFlagDefault
-	}
-
 	params := map[string]string{
-		"next":    nextFlag,
-		"limit":   limitFlag,
-		"sort_by": sortFlag,
+		"next":    appsNextFlag,
+		"limit":   appsLimitFlag,
+		"sort_by": appsSortFlag,
 	}
 
 	response, err := services.GetBitriseAppsForUser(params)
@@ -82,5 +72,5 @@ func apps() error {
 		os.Exit(1)
 		return nil
 	}
-	return errors.WithStack(printOutputWithPrettyFormatter(response.Data, formatFlag != "json", &AppsResponseModel{}))
+	return errors.WithStack(printOutputWithPrettyFormatter(response.Data, formatFlag != "json", &AppsListResponseModel{}))
 }
