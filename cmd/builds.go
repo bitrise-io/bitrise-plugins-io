@@ -87,7 +87,9 @@ func prettyPR(prID int) string {
 func (respModel *BuildsListReponseModel) Pretty() string {
 	buf := bytes.NewBuffer([]byte{})
 	prettyTabWriter := tabwriter.NewWriter(buf, 0, 0, 1, ' ', 0)
-	fmt.Fprintln(prettyTabWriter, "BuildNum\t"+colorstring.Blue("Status")+"\tSlug\tPullRequestID\tMessage")
+	if _, err := fmt.Fprintln(prettyTabWriter, "BuildNum\t"+colorstring.Blue("Status")+"\tSlug\tPullRequestID\tMessage"); err != nil {
+		panic(err)
+	}
 	for _, aItem := range respModel.Data {
 		fields := []string{
 			fmt.Sprintf("%d", aItem.BuildNumber),
@@ -96,9 +98,13 @@ func (respModel *BuildsListReponseModel) Pretty() string {
 			prettyPR(aItem.PullRequestID),
 			prettyBuildMessageText(aItem.CommitMessage),
 		}
-		fmt.Fprintln(prettyTabWriter, strings.Join(fields, "\t"))
+		if _, err := fmt.Fprintln(prettyTabWriter, strings.Join(fields, "\t")); err != nil {
+			panic(err)
+		}
 	}
-	prettyTabWriter.Flush()
+	if err := prettyTabWriter.Flush(); err != nil {
+		panic(err)
+	}
 	return buf.String()
 }
 
