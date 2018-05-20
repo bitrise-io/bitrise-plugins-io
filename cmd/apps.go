@@ -82,6 +82,5 @@ func apps() error {
 		os.Exit(1)
 		return nil
 	}
-	printOutputWithPrettyFormatter(response.Data, formatFlag != "json", &AppsResponseModel{})
-	return nil
+	return errors.WithStack(printOutputWithPrettyFormatter(response.Data, formatFlag != "json", &AppsResponseModel{}))
 }
