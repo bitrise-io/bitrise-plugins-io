@@ -5,7 +5,9 @@ import (
 	"os"
 
 	"github.com/bitrise-core/bitrise-plugins-io/configs"
+	"github.com/bitrise-io/go-utils/colorstring"
 	"github.com/bitrise-io/go-utils/envutil"
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 )
 
@@ -30,7 +32,12 @@ If you use it as a stand-alone tool:
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Printf("%+v", err)
+		if inputErr, ok := errors.Cause(err).(*InputError); ok {
+			fmt.Printf(colorstring.Red("INPUT ERROR:")+" %s\n", inputErr)
+		} else {
+			// print with stack trace
+			fmt.Printf("%+v\n", err)
+		}
 		os.Exit(-1)
 	}
 }

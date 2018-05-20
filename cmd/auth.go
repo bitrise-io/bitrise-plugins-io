@@ -5,9 +5,13 @@ import (
 
 	"github.com/bitrise-core/bitrise-plugins-io/configs"
 	"github.com/bitrise-core/bitrise-plugins-io/services"
-	"github.com/bitrise-io/go-utils/log"
+	"github.com/bitrise-io/go-utils/colorstring"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
+)
+
+const (
+	personalAccessTokenRegURL = "https://www.bitrise.io/me/profile#/security"
 )
 
 var (
@@ -16,43 +20,26 @@ var (
 
 var authCmd = &cobra.Command{
 	Use:   "auth",
-	Short: "Authenticate",
-	Run: func(cmd *cobra.Command, args []string) {
-		if len(args) > 1 {
-			log.Errorf("More than one argument specified (%+v), only one (the API Token) should be", args)
-			os.Exit(1)
-		}
+	Short: "Authenticate with the specified --token",
+	Long: `Authenticate with the specified --token
 
-		tokenToAuth := ""
-		if flagAPIToken != "" {
-			if len(args) > 0 {
-				log.Errorf("Both the --token flag as well as a token arg (%+v) is specified. Only one should be", args)
-				os.Exit(1)
-			}
-			tokenToAuth = flagAPIToken
-		} else if len(args) == 1 {
-			tokenToAuth = args[0]
-		}
-
-		if err := auth(tokenToAuth); err != nil {
-			log.Errorf(err.Error())
-			os.Exit(1)
-		}
-	},
+` + colorstring.Green("You can register a new Personal Access Token at:") + " " + personalAccessTokenRegURL,
+	Example: `auth --token=B1triseI0PersonalAccessT0ken`,
+	RunE:    auth,
 }
 
 func init() {
 	rootCmd.AddCommand(authCmd)
-	authCmd.Flags().StringVar(&flagAPIToken, "token", "", "Authentication token")
+	authCmd.Flags().StringVar(&flagAPIToken, "token", "", "Personal Access token")
 	authCmd.Flags().StringVar(&formatFlag, "format", "pretty", "Output format, one of: [pretty, json]")
 }
 
-func auth(apiToken string) error {
-	if apiToken == "" {
-		return errors.New("Failed to set authentication token, error: no API Token specified")
+func auth(cmd *cobra.Command, args []string) error {
+	if flagAPIToken == "" {
+		return NewInputError("No Personal Access Token specified. Register one at: " + personalAccessTokenRegURL)
 	}
 
-	if err := configs.SetAPIToken(apiToken); err != nil {
+	if err := configs.SetAPIToken(flagAPIToken); err != nil {
 		return errors.Errorf("Failed to set authentication token, error: %s", err)
 	}
 
