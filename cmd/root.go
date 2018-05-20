@@ -11,6 +11,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var (
+	formatFlag string
+)
+
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "bitrise-plugins-io",
@@ -48,4 +52,6 @@ func init() {
 
 	rootCmd.PersistentFlags().StringVar(&configs.APIRootURL, "api-root-url", "https://api.bitrise.io/v0.1", "API root URL ($BITRISE_API_ROOT_URL)")
 	configs.APIRootURL = envutil.GetenvWithDefault("BITRISE_API_ROOT_URL", configs.APIRootURL)
+
+	rootCmd.PersistentFlags().StringVar(&formatFlag, "format", "pretty", "Output format, one of: [pretty, json]")
 }

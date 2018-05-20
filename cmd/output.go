@@ -5,7 +5,27 @@ import (
 	"fmt"
 
 	"github.com/bitrise-io/go-utils/log"
+	"github.com/pkg/errors"
 )
+
+// PrettyOutput ...
+type PrettyOutput interface {
+	Pretty() string
+}
+
+func printOutputWithPrettyFormatter(data []byte, pretty bool, prettyFormatter PrettyOutput) error {
+	var output string
+	if pretty {
+		if err := json.Unmarshal(data, prettyFormatter); err != nil {
+			return errors.WithStack(err)
+		}
+		output = prettyFormatter.Pretty()
+	} else {
+		output = string(data)
+	}
+	fmt.Println(output)
+	return nil
+}
 
 func printOutput(data []byte, pretty bool) {
 	var output string
@@ -25,7 +45,7 @@ func printOutput(data []byte, pretty bool) {
 	} else {
 		output = string(data)
 	}
-	fmt.Printf(output)
+	fmt.Println(output)
 }
 
 func printErrorOutput(message string, pretty bool) {

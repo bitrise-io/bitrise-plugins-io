@@ -10,10 +10,9 @@ import (
 )
 
 var (
-	nextFlag   string
-	limitFlag  string
-	sortFlag   string
-	formatFlag string
+	nextFlag  string
+	limitFlag string
+	sortFlag  string
 )
 
 var appsCmd = &cobra.Command{
@@ -32,7 +31,6 @@ func init() {
 	appsCmd.Flags().StringVar(&nextFlag, "next", "", "Next parameter for paging")
 	appsCmd.Flags().StringVarP(&limitFlag, "limit", "l", "", "Limit parameter for paging")
 	appsCmd.Flags().StringVar(&sortFlag, "sort", "", "Sort by parameter for listing")
-	appsCmd.Flags().StringVar(&formatFlag, "format", "pretty", "Output format, one of: [pretty, json]")
 }
 
 func apps() error {
