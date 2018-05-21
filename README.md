@@ -10,4 +10,4 @@ A Terminal / Command Line interface for bitrise.io, to manage your apps on bitri
 - check and update the generated CHANGELOG.md
 - test the generated binaries in _bin/ directory
 - push these changes to the master branch
-- once `deploy` workflow finishes on bitrise.io create a github release with the generate binaries
+- once `deploy` workflow finishes on bitrise.io create a github release with the generated binaries
