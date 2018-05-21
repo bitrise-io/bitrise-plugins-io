@@ -1,5 +1,7 @@
 # Bitrise IO plugin for [Bitrise CLI]
 
+A Terminal / Command Line interface for bitrise.io, to manage your apps on bitrise.io right from your terminal / command line.
+
 ## How to release this plugin
 
 - bump `RELEASE_VERSION` in bitrise.yml
