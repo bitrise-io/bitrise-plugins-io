@@ -6,7 +6,6 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
 	"strings"
 
 	"github.com/bitrise-core/bitrise-plugins-io/services"
@@ -84,9 +83,7 @@ func getLog(cmd *cobra.Command, args []string) error {
 	}
 
 	if response.Error != "" {
-		printErrorOutput(response.Error, formatFlag != "json")
-		os.Exit(1)
-		return nil
+		return NewRequestFailedError(response)
 	}
 
 	logInfo := struct {
