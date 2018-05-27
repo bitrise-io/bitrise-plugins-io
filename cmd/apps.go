@@ -2,8 +2,10 @@ package cmd
 
 import (
 	"fmt"
+	"net/http"
 	"os"
 
+	"github.com/bitrise-core/bitrise-plugins-io/configs"
 	"github.com/bitrise-core/bitrise-plugins-io/services"
 	"github.com/bitrise-io/go-utils/colorstring"
 	"github.com/bitrise-io/go-utils/log"
@@ -68,7 +70,16 @@ func apps() error {
 	}
 
 	if response.Error != "" {
-		printErrorOutput(response.Error, formatFlag != "json")
+		if response.StatusCode == http.StatusUnauthorized {
+			if formatFlag == formatPretty {
+				log.Warnf("Unauthorized - your Personal Access Token most likely expired or was revoked. Use the auth command to re-authenticate.")
+			}
+			if err := configs.SetAPIToken(""); err != nil {
+				return errors.Errorf("Failed to set authentication token, error: %s", err)
+			}
+		} else {
+			printErrorOutput(response.Error, formatFlag != "json")
+		}
 		os.Exit(1)
 		return nil
 	}

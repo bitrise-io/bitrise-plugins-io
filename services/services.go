@@ -13,8 +13,17 @@ import (
 
 // Response ...
 type Response struct {
-	Data  []byte
-	Error string
+	Data       []byte
+	Error      string
+	StatusCode int
+}
+
+func newErrorResponse(statusCode int, errMsg string) Response {
+	return Response{StatusCode: statusCode, Error: errMsg}
+}
+
+func newSuccessResponse(statusCode int, bodyData []byte) Response {
+	return Response{Data: bodyData}
 }
 
 func wrapResponse(response *http.Response) (Response, error) {
@@ -24,7 +33,7 @@ func wrapResponse(response *http.Response) (Response, error) {
 			return Response{}, errors.WithStack(err)
 		}
 
-		return Response{Error: fmt.Sprintf("%s", body["message"])}, nil
+		return newErrorResponse(response.StatusCode, fmt.Sprintf("%s", body["message"])), nil
 	}
 
 	data, err := ioutil.ReadAll(response.Body)
@@ -32,7 +41,7 @@ func wrapResponse(response *http.Response) (Response, error) {
 		return Response{}, errors.WithStack(err)
 	}
 
-	return Response{Data: data}, nil
+	return newSuccessResponse(response.StatusCode, data), nil
 }
 
 func bitriseGetRequest(subURL string, params map[string]string) (Response, error) {

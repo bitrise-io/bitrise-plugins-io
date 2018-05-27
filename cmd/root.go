@@ -11,6 +11,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
+const (
+	formatJSON   = "json"
+	formatPretty = "pretty"
+)
+
 var (
 	formatFlag string
 )
@@ -52,5 +57,5 @@ func init() {
 	rootCmd.PersistentFlags().StringVar(&configs.APIRootURL, "api-root-url", "https://api.bitrise.io/v0.1", "API root URL ($BITRISE_API_ROOT_URL)")
 	configs.APIRootURL = envutil.GetenvWithDefault("BITRISE_API_ROOT_URL", configs.APIRootURL)
 
-	rootCmd.PersistentFlags().StringVar(&formatFlag, "format", "pretty", "Output format, one of: [pretty, json]")
+	rootCmd.PersistentFlags().StringVar(&formatFlag, "format", formatPretty, "Output format, one of: [pretty, json]")
 }

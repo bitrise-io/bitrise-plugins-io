@@ -41,7 +41,7 @@ func request(method, url string, queryParams map[string]string, requestBody map[
 		return nil, errors.WithStack(err)
 	}
 	if len(config.BitriseAPIAuthenticationToken) < 1 {
-		return nil, errors.New("Bitrise API token isn't set, please set up with bitrise :io auth AUTH-TOKEN")
+		return nil, errors.New("Bitrise API token isn't set, please set up with bitrise :io auth --token=AUTH-TOKEN")
 	}
 
 	var bodyReader io.Reader
