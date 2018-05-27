@@ -10,20 +10,26 @@ const (
 	bitriseioBaseURL = "https://www.bitrise.io"
 )
 
+var (
+	browseAppSlugFlag string
+	openInBrowser     bool
+)
+
 var browseCmd = &cobra.Command{
 	Use:   "browse",
 	Short: "Browse/open bitrise.io website at the app",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		urlToOpen := bitriseioBaseURL
-		if appSlugFlag != "" {
-			urlToOpen = fmt.Sprintf("%s/app/%s", bitriseioBaseURL, appSlugFlag)
+		if browseAppSlugFlag != "" {
+			urlToOpen = fmt.Sprintf("%s/app/%s", bitriseioBaseURL, browseAppSlugFlag)
 		}
-		openURL(urlToOpen)
+		openURL(urlToOpen, openInBrowser)
 		return nil
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(browseCmd)
-	browseCmd.Flags().StringVarP(&appSlugFlag, "app", "a", "", "Slug of the app where the builds belong to")
+	browseCmd.Flags().StringVarP(&browseAppSlugFlag, "app", "a", "", "Slug of the app where the builds belong to")
+	browseCmd.Flags().BoolVar(&openInBrowser, "open", true, "Open in browser? If set to false it'll only print out the URL but will not open it in browser.")
 }

@@ -13,10 +13,10 @@ import (
 )
 
 var (
-	appSlugFlag     string
-	buildsSortFlag  string
-	buildsNextFlag  string
-	buildsLimitFlag string
+	buildsAppSlugFlag string
+	buildsSortFlag    string
+	buildsNextFlag    string
+	buildsLimitFlag   string
 )
 
 var buildsCmd = &cobra.Command{
@@ -32,7 +32,7 @@ func init() {
 	buildsCmd.Flags().StringVar(&buildsNextFlag, "next", "", "Next parameter for paging")
 	buildsCmd.Flags().StringVarP(&buildsLimitFlag, "limit", "l", "", "Limit parameter for paging")
 	buildsCmd.Flags().StringVar(&buildsSortFlag, "sort", "created_at", "Sort by parameter for listing. Options: [created_at, running_first]")
-	buildsCmd.Flags().StringVarP(&appSlugFlag, "app", "a", "", "Slug of the app where the builds belong to")
+	buildsCmd.Flags().StringVarP(&buildsAppSlugFlag, "app", "a", "", "Slug of the app where the builds belong to")
 }
 
 // BuildsReponseModel ...
@@ -130,7 +130,7 @@ func builds() error {
 		"sort_by": buildsSortFlag,
 	}
 
-	response, err := services.GetBitriseBuildsForApp(appSlugFlag, params)
+	response, err := services.GetBitriseBuildsForApp(buildsAppSlugFlag, params)
 	if err != nil {
 		return err
 	}
