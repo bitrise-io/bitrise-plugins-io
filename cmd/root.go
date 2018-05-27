@@ -44,10 +44,13 @@ Uses the official Bitrise API (v0.1 docs: https://devcenter.bitrise.io/api/v0.1/
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
 		if inputErr, ok := errors.Cause(err).(*InputError); ok {
+			// Input Error
 			fmt.Printf(colorstring.Red("INPUT ERROR:")+" %s\n", inputErr)
 		} else if confErr, ok := errors.Cause(err).(*services.ConfigError); ok {
+			// Request Config Error (missing Personal Access Token)
 			printErrorOutput(confErr.Error(), formatFlag == formatPretty)
 		} else if reqFailErr, ok := errors.Cause(err).(*RequestFailedError); ok {
+			// Request Failed (non successful response) Error
 			response := reqFailErr.Response
 			if response.StatusCode == http.StatusUnauthorized {
 				if formatFlag == formatPretty {
@@ -60,7 +63,7 @@ func Execute() {
 				printErrorOutput(response.Error, formatFlag == formatPretty)
 			}
 		} else {
-			// print with stack trace
+			// Any other error: print with stack trace
 			fmt.Printf("%+v\n", err)
 		}
 		os.Exit(-1)
