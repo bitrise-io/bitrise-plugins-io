@@ -12,6 +12,22 @@ import (
 	"github.com/pkg/errors"
 )
 
+// ConfigError ...
+type ConfigError struct {
+	Err string
+}
+
+func (e *ConfigError) Error() string {
+	return e.Err
+}
+
+// NewConfigError ...
+func NewConfigError(err string) error {
+	return &ConfigError{
+		Err: err,
+	}
+}
+
 func createClient() http.Client {
 	timeout := time.Duration(10 * time.Second)
 	return http.Client{
@@ -41,7 +57,7 @@ func request(method, url string, queryParams map[string]string, requestBody map[
 		return nil, errors.WithStack(err)
 	}
 	if len(config.BitriseAPIAuthenticationToken) < 1 {
-		return nil, errors.New("Bitrise API token isn't set, please set up with bitrise :io auth AUTH-TOKEN")
+		return nil, NewConfigError("Bitrise API token isn't set, please set it up with: $ bitrise :io auth --token=AUTH-TOKEN")
 	}
 
 	var bodyReader io.Reader

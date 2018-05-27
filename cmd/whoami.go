@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/bitrise-core/bitrise-plugins-io/services"
 	"github.com/pkg/errors"
@@ -43,9 +42,7 @@ func whoami() error {
 	}
 
 	if response.Error != "" {
-		printErrorOutput(response.Error, formatFlag != "json")
-		os.Exit(1)
-		return nil
+		return NewRequestFailedError(response)
 	}
 
 	return errors.WithStack(printOutputWithPrettyFormatter(response.Data, formatFlag != "json", &MeResponseModel{}))

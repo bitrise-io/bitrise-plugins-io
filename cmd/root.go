@@ -2,13 +2,21 @@ package cmd
 
 import (
 	"fmt"
+	"net/http"
 	"os"
 
 	"github.com/bitrise-core/bitrise-plugins-io/configs"
+	"github.com/bitrise-core/bitrise-plugins-io/services"
 	"github.com/bitrise-io/go-utils/colorstring"
 	"github.com/bitrise-io/go-utils/envutil"
+	"github.com/bitrise-io/go-utils/log"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
+)
+
+const (
+	formatJSON   = "json"
+	formatPretty = "pretty"
 )
 
 var (
@@ -36,9 +44,26 @@ Uses the official Bitrise API (v0.1 docs: https://devcenter.bitrise.io/api/v0.1/
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
 		if inputErr, ok := errors.Cause(err).(*InputError); ok {
+			// Input Error
 			fmt.Printf(colorstring.Red("INPUT ERROR:")+" %s\n", inputErr)
+		} else if confErr, ok := errors.Cause(err).(*services.ConfigError); ok {
+			// Request Config Error (missing Personal Access Token)
+			printErrorOutput(confErr.Error(), formatFlag == formatPretty)
+		} else if reqFailErr, ok := errors.Cause(err).(*RequestFailedError); ok {
+			// Request Failed (non successful response) Error
+			response := reqFailErr.Response
+			if response.StatusCode == http.StatusUnauthorized {
+				if formatFlag == formatPretty {
+					log.Warnf("Unauthorized - your Personal Access Token most likely expired or was revoked. Use the auth command to re-authenticate.")
+				}
+				if err := configs.SetAPIToken(""); err != nil {
+					log.Errorf("Failed to clear stored Personal Access Token: %+v", err)
+				}
+			} else {
+				printErrorOutput(response.Error, formatFlag == formatPretty)
+			}
 		} else {
-			// print with stack trace
+			// Any other error: print with stack trace
 			fmt.Printf("%+v\n", err)
 		}
 		os.Exit(-1)
@@ -52,5 +77,5 @@ func init() {
 	rootCmd.PersistentFlags().StringVar(&configs.APIRootURL, "api-root-url", "https://api.bitrise.io/v0.1", "API root URL ($BITRISE_API_ROOT_URL)")
 	configs.APIRootURL = envutil.GetenvWithDefault("BITRISE_API_ROOT_URL", configs.APIRootURL)
 
-	rootCmd.PersistentFlags().StringVar(&formatFlag, "format", "pretty", "Output format, one of: [pretty, json]")
+	rootCmd.PersistentFlags().StringVar(&formatFlag, "format", formatPretty, "Output format, one of: [pretty, json]")
 }
