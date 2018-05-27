@@ -2,13 +2,9 @@ package cmd
 
 import (
 	"fmt"
-	"net/http"
-	"os"
 
-	"github.com/bitrise-core/bitrise-plugins-io/configs"
 	"github.com/bitrise-core/bitrise-plugins-io/services"
 	"github.com/bitrise-io/go-utils/colorstring"
-	"github.com/bitrise-io/go-utils/log"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 )
@@ -22,11 +18,8 @@ var (
 var appsCmd = &cobra.Command{
 	Use:   "apps",
 	Short: "Get apps for user",
-	Run: func(cmd *cobra.Command, args []string) {
-		if err := apps(); err != nil {
-			log.Errorf(err.Error())
-			os.Exit(1)
-		}
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return errors.WithStack(apps())
 	},
 }
 
@@ -70,18 +63,8 @@ func apps() error {
 	}
 
 	if response.Error != "" {
-		if response.StatusCode == http.StatusUnauthorized {
-			if formatFlag == formatPretty {
-				log.Warnf("Unauthorized - your Personal Access Token most likely expired or was revoked. Use the auth command to re-authenticate.")
-			}
-			if err := configs.SetAPIToken(""); err != nil {
-				return errors.Errorf("Failed to set authentication token, error: %s", err)
-			}
-		} else {
-			printErrorOutput(response.Error, formatFlag != "json")
-		}
-		os.Exit(1)
-		return nil
+		return NewRequestFailedError(response)
 	}
+
 	return errors.WithStack(printOutputWithPrettyFormatter(response.Data, formatFlag != "json", &AppsListResponseModel{}))
 }

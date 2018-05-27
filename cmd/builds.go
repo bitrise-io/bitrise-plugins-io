@@ -3,13 +3,11 @@ package cmd
 import (
 	"bytes"
 	"fmt"
-	"os"
 	"strings"
 	"text/tabwriter"
 
 	"github.com/bitrise-core/bitrise-plugins-io/services"
 	"github.com/bitrise-io/go-utils/colorstring"
-	"github.com/bitrise-io/go-utils/log"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 )
@@ -24,11 +22,8 @@ var (
 var buildsCmd = &cobra.Command{
 	Use:   "builds",
 	Short: "Get builds for app",
-	Run: func(cmd *cobra.Command, args []string) {
-		if err := builds(); err != nil {
-			log.Errorf(err.Error())
-			os.Exit(1)
-		}
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return errors.WithStack(builds())
 	},
 }
 
@@ -141,9 +136,7 @@ func builds() error {
 	}
 
 	if response.Error != "" {
-		printErrorOutput(response.Error, formatFlag != "json")
-		os.Exit(1)
-		return nil
+		return NewRequestFailedError(response)
 	}
 
 	return errors.WithStack(printOutputWithPrettyFormatter(response.Data, formatFlag != "json", &BuildsListReponseModel{}))

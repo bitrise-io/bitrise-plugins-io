@@ -2,11 +2,14 @@ package cmd
 
 import (
 	"fmt"
+	"net/http"
 	"os"
 
 	"github.com/bitrise-core/bitrise-plugins-io/configs"
+	"github.com/bitrise-core/bitrise-plugins-io/services"
 	"github.com/bitrise-io/go-utils/colorstring"
 	"github.com/bitrise-io/go-utils/envutil"
+	"github.com/bitrise-io/go-utils/log"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 )
@@ -42,6 +45,20 @@ func Execute() {
 	if err := rootCmd.Execute(); err != nil {
 		if inputErr, ok := errors.Cause(err).(*InputError); ok {
 			fmt.Printf(colorstring.Red("INPUT ERROR:")+" %s\n", inputErr)
+		} else if confErr, ok := errors.Cause(err).(*services.ConfigError); ok {
+			printErrorOutput(confErr.Error(), formatFlag == formatPretty)
+		} else if reqFailErr, ok := errors.Cause(err).(*RequestFailedError); ok {
+			response := reqFailErr.Response
+			if response.StatusCode == http.StatusUnauthorized {
+				if formatFlag == formatPretty {
+					log.Warnf("Unauthorized - your Personal Access Token most likely expired or was revoked. Use the auth command to re-authenticate.")
+				}
+				if err := configs.SetAPIToken(""); err != nil {
+					log.Errorf("Failed to clear stored Personal Access Token: %+v", err)
+				}
+			} else {
+				printErrorOutput(response.Error, formatFlag == formatPretty)
+			}
 		} else {
 			// print with stack trace
 			fmt.Printf("%+v\n", err)
