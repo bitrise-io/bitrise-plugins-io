@@ -22,15 +22,16 @@ var logCmd = &cobra.Command{
 }
 
 var (
-	buildSlugFlag string
+	logAppSlugFlag   string
+	logBuildSlugFlag string
 )
 
 func init() {
 	rootCmd.AddCommand(logCmd)
 
 	// Here you will define your flags and configuration settings.
-	logCmd.Flags().StringVarP(&appSlugFlag, "app", "a", "", "Slug of the app where the builds belong to")
-	logCmd.Flags().StringVarP(&buildSlugFlag, "build", "b", "", "Slug of the build where the log belong to")
+	logCmd.Flags().StringVarP(&logAppSlugFlag, "app", "a", "", "Slug of the app where the builds belong to")
+	logCmd.Flags().StringVarP(&logBuildSlugFlag, "build", "b", "", "Slug of the build where the log belong to")
 }
 
 func loadFullLog(fullLogURL string) ([]byte, error) {
@@ -70,14 +71,14 @@ func getLog(cmd *cobra.Command, args []string) error {
 		if len(splits) != 2 {
 			return errors.Errorf("Invalid argument (%+v), should be in format: APP-SLUG/BUILD-SLUG (e.g. 3...0/1...8)", splits)
 		}
-		appSlugFlag = splits[0]
-		buildSlugFlag = splits[1]
+		logAppSlugFlag = splits[0]
+		logBuildSlugFlag = splits[1]
 	}
-	fmt.Printf("App: %s | Build: %s\n", appSlugFlag, buildSlugFlag)
+	fmt.Printf("App: %s | Build: %s\n", logAppSlugFlag, logBuildSlugFlag)
 
 	fmt.Println("Retrieving Build and Log info ...")
 	params := map[string]string{}
-	response, err := services.GetBuildLogInfo(appSlugFlag, buildSlugFlag, params)
+	response, err := services.GetBuildLogInfo(logAppSlugFlag, logBuildSlugFlag, params)
 	if err != nil {
 		return errors.WithStack(err)
 	}
