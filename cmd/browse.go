@@ -30,6 +30,6 @@ var browseCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(browseCmd)
-	browseCmd.Flags().StringVarP(&browseAppSlugFlag, "app", "a", "", "Slug of the app where the builds belong to")
+	browseCmd.Flags().StringVarP(&browseAppSlugFlag, "app", "a", "", "Slug of the app")
 	browseCmd.Flags().BoolVar(&openInBrowser, "open", true, "Open in browser? If set to false it'll only print out the URL but will not open it in browser.")
 }
