@@ -3,19 +3,23 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/bitrise-io/go-utils/command"
-	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
+)
+
+const (
+	bitriseioBaseURL = "https://www.bitrise.io"
 )
 
 var browseCmd = &cobra.Command{
 	Use:   "browse",
 	Short: "Browse/open bitrise.io website at the app",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		if appSlugFlag == "" {
-			return errors.WithStack(command.NewWithStandardOuts("open", "https://www.bitrise.io").Run())
+		urlToOpen := bitriseioBaseURL
+		if appSlugFlag != "" {
+			urlToOpen = fmt.Sprintf("%s/app/%s", bitriseioBaseURL, appSlugFlag)
 		}
-		return errors.WithStack(command.NewWithStandardOuts("open", fmt.Sprintf("https://www.bitrise.io/app/%s", appSlugFlag)).Run())
+		openURL(urlToOpen)
+		return nil
 	},
 }
 
