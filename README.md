@@ -10,6 +10,58 @@ You can install this [Bitrise CLI](https://www.bitrise.io/cli) plugin using the 
 bitrise plugin install https://github.com/bitrise-core/bitrise-plugins-io.git
 ```
 
+## How to use
+
+First you have to sign in / authenticate yourself. You can do that via the `auth` command:
+
+```
+bitrise :io auth --token 3c..NQ
+```
+
+You can check with which user you're signed into the plugin with the `auth whoami` command:
+
+```
+$ bitrise :io auth whoami
+
+viktorbenei
+```
+
+List your apps with the `apps` command:
+
+```
+bitrise :io apps
+```
+
+List builds of a specific app (identified by its slug/ID you see in the `apps` list):
+
+```
+bitrise :io builds --app 72b...392
+```
+
+Limit it to just the last 5 builds:
+
+```
+bitrise :io builds --app 72b...392 --limit=5
+```
+
+For all the available commands use:
+
+```
+bitrise :io help
+```
+
+And to get all the available flags of a given command:
+
+```
+bitrise :io COMMAND --help
+```
+
+e.g. for the `builds` command to see all of its available options:
+
+```
+bitrise :io builds --help
+```
+
 
 ## Development
 
