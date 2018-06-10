@@ -12,7 +12,11 @@ bitrise plugin install https://github.com/bitrise-core/bitrise-plugins-io.git
 
 ## How to use
 
-First you have to sign in / authenticate yourself. You can do that via the `auth` command:
+First you have to sign in / authenticate yourself.
+Authentication requires a Bitrise.io Personal Access Token,
+which you can generate at: [https://www.bitrise.io/me/profile#/security](https://www.bitrise.io/me/profile#/security).
+
+Once you have the Personal Access Token register it for the plugin using the `auth` command:
 
 ```
 bitrise :io auth --token 3c..NQ
