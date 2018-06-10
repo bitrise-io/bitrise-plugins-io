@@ -1,6 +1,36 @@
-## Changelog (Current version: 0.0.3)
+## Changelog (Current version: 0.0.4)
 
 -----------------
+
+### 0.0.4 (2018 Jun 10)
+
+* [0deec2c] RELEASE_VERSION: 0.0.4
+* [51e386f] Print URL before opening it in browser (#39)
+* [dd7bffd] Unauthorized error (token expires): auto remove token & print instructions (#40)
+* [f8cdd01] Unified Trigger Info column (#30)
+* [f24a358] typo fix in README (#31)
+* [67aec17] Update README.md (#29)
+* [603f308] Build Command output revision (#28)
+* [e8844ba] app command --sort flag option infos and command output revision (#27)
+* [0cc8a85] auth whoami (#26)
+* [c929309] auth command revision (#24)
+* [a87fedd] browse command (#17)
+* [0e51bf7] Add short form -l flag option to --limit flag (#12)
+* [5508af2] Better tool description with note about how to use as stand-alone tool (#10)
+* [01a1a4e] log command (#7)
+* [055d176] option to change API root URL via env var (#9)
+* [7a98a92] request body fix (#8)
+* [3a5d4e4] Add parameter to finish service method (#6)
+* [e04b4fb] Implement service methods for app register (#5)
+* [a2d59ae] fixing auth command hint when no auth found + allow token as flag and as arg (#4)
+* [f2d715b] Output format (#3)
+* [c0e0a96] Update (#2)
+* [3b1756b] migrate to:  github.com/bitrise-core/bitrise-plugins-io (#1)
+* [cd715d4] Move method to other file
+* [af04ab1] Token validation
+* [519b60a] Validation messages
+* [f4a207a] Auth token validation added
+* [5380e45] Add Readme, fix flakyness of test
 
 ### 0.0.3 (2018 Mar 09)
 
@@ -26,4 +56,4 @@
 
 -----------------
 
-Updated: 2018 Mar 09
+Updated: 2018 Jun 10
