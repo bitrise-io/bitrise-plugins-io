@@ -11,8 +11,9 @@ const (
 )
 
 var (
-	browseAppSlugFlag string
-	openInBrowser     bool
+	browseAppSlugFlag   string
+	browseBuildSlugFlag string
+	openInBrowser       bool
 )
 
 var browseCmd = &cobra.Command{
@@ -22,6 +23,11 @@ var browseCmd = &cobra.Command{
 		urlToOpen := bitriseioBaseURL
 		if browseAppSlugFlag != "" {
 			urlToOpen = fmt.Sprintf("%s/app/%s", bitriseioBaseURL, browseAppSlugFlag)
+			if browseBuildSlugFlag != "" {
+				// In the future the URL will include both the app & the build ID
+				// but right now it's not required and not even an option.
+				urlToOpen = fmt.Sprintf("%s/builds/%s", bitriseioBaseURL, browseBuildSlugFlag)
+			}
 		}
 		openURL(urlToOpen, openInBrowser)
 		return nil
@@ -31,5 +37,6 @@ var browseCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(browseCmd)
 	browseCmd.Flags().StringVarP(&browseAppSlugFlag, "app", "a", "", "Slug of the app")
+	browseCmd.Flags().StringVarP(&browseBuildSlugFlag, "build", "b", "", "Slug of the build")
 	browseCmd.Flags().BoolVar(&openInBrowser, "open", true, "Open in browser? If set to false it'll only print out the URL but will not open it in browser.")
 }
