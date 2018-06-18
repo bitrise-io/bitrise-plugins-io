@@ -3,6 +3,7 @@ package cmd
 import (
 	"encoding/json"
 	"io"
+	"log"
 	"net/http"
 	"os"
 
@@ -68,7 +69,12 @@ func artifactDownload() error {
 		if err != nil {
 			return errors.WithStack(err)
 		}
-		defer out.Close()
+		defer func() {
+			if err := out.Close(); err != nil {
+				log.Printf("Failed to close output file: %+v", err)
+			}
+		}()
+
 		outputWriter = out
 	}
 
@@ -76,7 +82,11 @@ func artifactDownload() error {
 	if err != nil {
 		return errors.WithStack(err)
 	}
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			log.Printf("Failed to close response body: %+v", err)
+		}
+	}()
 
 	// Check server response
 	if resp.StatusCode != http.StatusOK {
