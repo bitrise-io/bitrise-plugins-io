@@ -21,12 +21,12 @@ var artifactDownloadCmd = &cobra.Command{
 }
 
 var (
-	artifactDownloadArtifactIDFlag string
+	artifactsDownloadArtifactIDFlag string
 )
 
 func init() {
-	artifactCmd.AddCommand(artifactDownloadCmd)
-	artifactDownloadCmd.Flags().StringVar(&artifactDownloadArtifactIDFlag, "slug", "", "Slug of the artifact to download")
+	artifactsCmd.AddCommand(artifactDownloadCmd)
+	artifactDownloadCmd.Flags().StringVar(&artifactsDownloadArtifactIDFlag, "slug", "", "Slug of the artifact to download")
 }
 
 // ArtifactInfoResponseModel ...
@@ -43,12 +43,12 @@ type ArtifactInfoResponseModel struct {
 }
 
 func artifactDownload() error {
-	if artifactDownloadArtifactIDFlag == "" {
+	if artifactsDownloadArtifactIDFlag == "" {
 		return NewInputError("No artifact ID specified.")
 	}
 
 	params := map[string]string{}
-	response, err := fetchArtifact(artifactAppIDFlag, artifactBuildIDFlag, artifactDownloadArtifactIDFlag, params)
+	response, err := fetchArtifact(artifactsAppIDFlag, artifactsBuildIDFlag, artifactsDownloadArtifactIDFlag, params)
 	if err != nil {
 		return errors.WithStack(err)
 	}

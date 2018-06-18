@@ -17,13 +17,13 @@ var artifactShowCmd = &cobra.Command{
 }
 
 var (
-	artifactShowArtifactIDFlag string
+	artifactsShowArtifactIDFlag string
 )
 
 func init() {
-	artifactCmd.AddCommand(artifactShowCmd)
+	artifactsCmd.AddCommand(artifactShowCmd)
 
-	artifactShowCmd.Flags().StringVar(&artifactShowArtifactIDFlag, "slug", "", "Slug of the artifact to show")
+	artifactShowCmd.Flags().StringVar(&artifactsShowArtifactIDFlag, "slug", "", "Slug of the artifact to show")
 }
 
 func fetchArtifact(appID, buildID, artifactID string, params map[string]string) (services.Response, error) {
@@ -42,7 +42,7 @@ func fetchArtifact(appID, buildID, artifactID string, params map[string]string) 
 func artifactShow() error {
 	params := map[string]string{}
 
-	response, err := fetchArtifact(artifactAppIDFlag, artifactBuildIDFlag, artifactShowArtifactIDFlag, params)
+	response, err := fetchArtifact(artifactsAppIDFlag, artifactsBuildIDFlag, artifactsShowArtifactIDFlag, params)
 	if err != nil {
 		return errors.WithStack(err)
 	}

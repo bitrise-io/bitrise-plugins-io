@@ -4,21 +4,21 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// artifactCmd represents the artifact command
-var artifactCmd = &cobra.Command{
-	Use:   "artifact",
+// artifactsCmd represents the artifact command
+var artifactsCmd = &cobra.Command{
+	Use:   "artifacts",
 	Short: "Manage artifact",
 	Long:  `Manage artifact`,
 }
 
 var (
-	artifactAppIDFlag   string
-	artifactBuildIDFlag string
+	artifactsAppIDFlag   string
+	artifactsBuildIDFlag string
 )
 
 func init() {
-	rootCmd.AddCommand(artifactCmd)
+	rootCmd.AddCommand(artifactsCmd)
 
-	artifactCmd.PersistentFlags().StringVarP(&artifactAppIDFlag, "app", "a", "", "App ID (slug)")
-	artifactCmd.PersistentFlags().StringVarP(&artifactBuildIDFlag, "build", "b", "", "Build ID (slug)")
+	artifactsCmd.PersistentFlags().StringVarP(&artifactsAppIDFlag, "app", "a", "", "App ID (slug)")
+	artifactsCmd.PersistentFlags().StringVarP(&artifactsBuildIDFlag, "build", "b", "", "Build ID (slug)")
 }

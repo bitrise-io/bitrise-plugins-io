@@ -17,13 +17,13 @@ var artifactListCmd = &cobra.Command{
 }
 
 func init() {
-	artifactCmd.AddCommand(artifactListCmd)
+	artifactsCmd.AddCommand(artifactListCmd)
 }
 
 func artifactList() error {
 	params := map[string]string{}
 
-	response, err := services.GetBitriseArtifacts(artifactAppIDFlag, artifactBuildIDFlag, params)
+	response, err := services.GetBitriseArtifacts(artifactsAppIDFlag, artifactsBuildIDFlag, params)
 	if err != nil {
 		return err
 	}
