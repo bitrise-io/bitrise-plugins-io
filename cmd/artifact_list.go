@@ -37,10 +37,15 @@ type ArtifactsListReponseModel struct {
 func (respModel *ArtifactsListReponseModel) Pretty() string {
 	linesOfTable := [][]string{}
 	// headers
-	linesOfTable = append(linesOfTable, []string{"Title", "Slug", "Size"})
+	linesOfTable = append(linesOfTable, []string{"Title", "Slug", "Size", "Pub Page Enabled?"})
 	// data
 	for _, aArtifact := range respModel.Data {
-		linesOfTable = append(linesOfTable, []string{aArtifact.Title, aArtifact.Slug, fmt.Sprintf("%.2f KB", float64(aArtifact.FileSizeBytes)/1024)})
+		linesOfTable = append(linesOfTable, []string{
+			aArtifact.Title,
+			aArtifact.Slug,
+			fmt.Sprintf("%.2f KB", float64(aArtifact.FileSizeBytes)/1024),
+			fmt.Sprintf("%t", aArtifact.IsPublicPageEnabled),
+		})
 	}
 
 	return tabbedTableString(linesOfTable)
