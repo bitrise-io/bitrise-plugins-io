@@ -1,9 +1,9 @@
-format_version: 2
+format_version: 5
 default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
 
 app:
   envs:
-  - RELEASE_VERSION: 0.0.4
+  - RELEASE_VERSION: 0.0.5
   - BIN_NAME: bitrise-plugins-io
 
 workflows:

@@ -72,7 +72,7 @@ bitrise :io builds --help
 ### How to create a new release of this plugin
 
 - bump `RELEASE_VERSION` in bitrise.yml
-- commit these change
+- commit the change(s)
 - call `bitrise run create-release`
 - check and update the generated `CHANGELOG.md`
 - test the generated binaries in `_bin/` directory
