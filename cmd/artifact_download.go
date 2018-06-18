@@ -22,11 +22,13 @@ var artifactDownloadCmd = &cobra.Command{
 
 var (
 	artifactsDownloadArtifactIDFlag string
+	artifactsDownloadOutputPath     string
 )
 
 func init() {
 	artifactsCmd.AddCommand(artifactDownloadCmd)
 	artifactDownloadCmd.Flags().StringVar(&artifactsDownloadArtifactIDFlag, "slug", "", "Slug of the artifact to download")
+	artifactDownloadCmd.Flags().StringVar(&artifactsDownloadOutputPath, "output", "", "(Optional) output file path to save the file into")
 }
 
 // ArtifactInfoResponseModel ...
@@ -59,12 +61,29 @@ func artifactDownload() error {
 	}
 
 	// download
+	var outputWriter io.Writer = os.Stdout
+	if artifactsDownloadOutputPath != "" {
+		// open file
+		out, err := os.Create(artifactsDownloadOutputPath)
+		if err != nil {
+			return errors.WithStack(err)
+		}
+		defer out.Close()
+		outputWriter = out
+	}
+
 	resp, err := http.Get(infoModel.Data.ExpiringDownloadURL)
 	if err != nil {
 		return errors.WithStack(err)
 	}
+	defer resp.Body.Close()
 
-	if _, err := io.Copy(os.Stdout, resp.Body); err != nil {
+	// Check server response
+	if resp.StatusCode != http.StatusOK {
+		return errors.Errorf("Non success response (code: %d)", resp.StatusCode)
+	}
+
+	if _, err := io.Copy(outputWriter, resp.Body); err != nil {
 		return errors.WithStack(err)
 	}
 
