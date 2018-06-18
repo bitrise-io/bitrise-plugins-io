@@ -96,6 +96,16 @@ func GetBitriseBuildsForApp(appSlug string, params map[string]string) (Response,
 	return bitriseGetRequest(fmt.Sprintf("apps/%s/builds", appSlug), params)
 }
 
+// GetBitriseArtifacts ...
+func GetBitriseArtifacts(appSlug string, buildSlug string, params map[string]string) (Response, error) {
+	return bitriseGetRequest(fmt.Sprintf("apps/%s/builds/%s/artifacts", appSlug, buildSlug), params)
+}
+
+// GetBitriseArtifact ...
+func GetBitriseArtifact(appSlug, buildSlug, artifactSlug string, params map[string]string) (Response, error) {
+	return bitriseGetRequest(fmt.Sprintf("apps/%s/builds/%s/artifacts/%s", appSlug, buildSlug, artifactSlug), params)
+}
+
 // GetBuildLogInfo ...
 func GetBuildLogInfo(appSlug, buildSlug string, params map[string]string) (Response, error) {
 	return bitriseGetRequest(fmt.Sprintf("apps/%s/builds/%s/log", appSlug, buildSlug), params)
