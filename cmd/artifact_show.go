@@ -47,7 +47,6 @@ func artifactShow() error {
 		return errors.WithStack(err)
 	}
 
-	// return errors.WithStack(printOutputWithPrettyFormatter(response.Data, formatFlag != "json", &BuildsListReponseModel{}))
 	printOutput(response.Data, formatFlag != formatJSON)
 	return nil
 }
