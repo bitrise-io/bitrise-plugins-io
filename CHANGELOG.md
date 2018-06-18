@@ -1,6 +1,13 @@
-## Changelog (Current version: 0.0.4)
+## Changelog (Current version: 0.0.5)
 
 -----------------
+
+### 0.0.5 (2018 Jun 18)
+
+* [b0e732a] RELEASE_VERSION: 0.0.5
+* [b6f9286] Artifacts commands: list, show, download - WIP (#42)
+* [1be9e82] browse command new flag: build - to open specific build (#43)
+* [e7dca6d] README revision (#41)
 
 ### 0.0.4 (2018 Jun 10)
 
@@ -56,4 +63,4 @@
 
 -----------------
 
-Updated: 2018 Jun 10
+Updated: 2018 Jun 18
