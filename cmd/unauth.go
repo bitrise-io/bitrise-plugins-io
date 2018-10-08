@@ -16,7 +16,6 @@ var unauthCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(unauthCmd)
-	unauthCmd.Flags().StringVar(&formatFlag, "format", "pretty", "Output format, one of: [pretty, json]")
 }
 
 func unauth(cmd *cobra.Command, args []string) error {
