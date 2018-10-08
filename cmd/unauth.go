@@ -12,6 +12,7 @@ var unauthCmd = &cobra.Command{
 	Long:    `Unauthenticate`,
 	Example: `unauth`,
 	RunE:    unauth,
+	Aliases: []string{"logout"},
 }
 
 func init() {
