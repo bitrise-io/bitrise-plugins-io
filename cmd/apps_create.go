@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/bitrise-core/bitrise-plugins-io/services"
 	"github.com/bitrise-io/go-utils/command"
 	"github.com/bitrise-io/goinp/goinp"
 	"github.com/pkg/errors"
@@ -11,7 +12,9 @@ import (
 )
 
 var (
-	configFlag string
+	configFlag   string
+	remoteFlag   string
+	isPublicFlag string
 )
 
 // appsCreateCmd represents the create command
@@ -25,38 +28,77 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		remote, err := ensureGitRemote()
+		remote, err := ensureGitRemote(cmd)
 		if err != nil {
-			fmt.Printf("ERROR: %s", err)
 			return errors.WithStack(err)
 		}
-		fmt.Printf("Selected remote: %s", remote)
-		return nil
+		fmt.Printf("Selected remote: %s\n", remote)
+
+		repoName, err := ensureRepoName(cmd)
+		if err != nil {
+			return errors.WithStack(err)
+		}
+		fmt.Printf("Repo name: %s\n", repoName)
+
+		priv, err := appPrivacy(cmd)
+		if err != nil {
+			return errors.WithStack(err)
+		}
+		fmt.Printf("App privacy: %s\n", priv)
+
+		params := map[string]interface{}{
+			"is_public":     Privacy(isPublicFlag).isPublic(),
+			"repo_url":      remote,
+			"type":          "git",
+			"git_repo_slug": repoName,
+		}
+
+		return errors.WithStack(create(params))
 	},
 }
 
 func init() {
 	appsCmd.AddCommand(appsCreateCmd)
-	appsCreateCmd.Flags().StringVarP(&configFlag, "config", "c", "", "Path of the bitrise.yml config file")
+	appsCreateCmd.Flags().StringVar(&configFlag, "config", "", "Path of the bitrise.yml config file")
+	appsCreateCmd.Flags().StringVar(&configFlag, "remote", "", "Git remote URL of your repository")
+	appsCreateCmd.Flags().StringVar(&isPublicFlag, "privacy", "", "Privacy of the app [private/public]")
 }
 
 // AppsCreateResponseModel ...
 type AppsCreateResponseModel struct {
-	// TODO
+	Status string `json:"status"`
+	Slug   string `json:"slug"`
+}
+
+// Pretty ...
+func (respModel *AppsCreateResponseModel) Pretty() string {
+	return fmt.Sprintf("%s / %s\n", respModel.Status, respModel.Status)
+}
+
+// Privacy ...
+type Privacy string
+
+// const ...
+const (
+	Private Privacy = "private"
+	Public  Privacy = "public"
+)
+
+func (p Privacy) isPublic() bool {
+	return p == Public
 }
 
 func gitRemotes() ([]string, error) {
-	cmd := command.New("git", "remote", "-v")
+	cmd := command.New("git", "config", "--get", "remote.origin.url")
 	out, err := cmd.RunAndReturnTrimmedCombinedOutput()
-	if err != nil {
-		return nil, err
-	}
-
-	out = strings.Replace(strings.Replace(out, "(fetch)", "", -1), "(push)", "", -1)
-	return removeDuplicates(strings.Split(out, "\n")), nil
+	return strings.Split(out, "\n"), err
 }
 
-func ensureGitRemote() (string, error) {
+func ensureGitRemote(cmd *cobra.Command) (string, error) {
+	if cmd.Flags().Changed("remote") {
+		return cmd.Flag("remote").Value.String(), nil
+	}
+
 	remotes, err := gitRemotes()
 	if err != nil {
 		return "", err
@@ -77,16 +119,39 @@ func ensureGitRemote() (string, error) {
 	}
 }
 
-func removeDuplicates(elements []string) []string {
-	encountered := map[string]bool{}
-	var result []string
+func ensureRepoName(c *cobra.Command) (string, error) {
+	if c.Flags().Changed("repo-slug") {
+		return c.Flag("repo-slug").Value.String(), nil
+	}
 
-	for v := range elements {
-		if encountered[elements[v]] == true {
-		} else {
-			encountered[elements[v]] = true
-			result = append(result, elements[v])
+	cmd := command.New("bash", "-c", "basename `git rev-parse --show-toplevel`")
+	return cmd.RunAndReturnTrimmedCombinedOutput()
+}
+
+func appPrivacy(cmd *cobra.Command) (Privacy, error) {
+	if cmd.Flags().Changed("privacy") {
+		privacy := cmd.Flag("privacy").Value.String()
+		if privacy == string(Private) || privacy == string(Public) {
+			return Privacy(privacy), nil
 		}
 	}
-	return result
+	fmt.Println()
+	fmt.Println()
+
+	opts := []string{string(Public), string(Private)}
+	privacy, err := goinp.SelectFromStringsWithDefault("Set privacy of the app", 1, opts)
+	return Privacy(privacy), err
+}
+
+func create(params map[string]interface{}) error {
+	response, err := services.RegisterApp(params)
+	if err != nil {
+		return errors.WithStack(err)
+	}
+
+	if response.Error != "" {
+		return NewRequestFailedError(response)
+	}
+
+	return errors.WithStack(printOutputWithPrettyFormatter(response.Data, formatFlag != "json", &AppsCreateResponseModel{}))
 }
