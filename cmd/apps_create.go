@@ -138,7 +138,7 @@ func appPrivacy(cmd *cobra.Command) (Privacy, error) {
 	fmt.Println()
 	fmt.Println()
 
-	opts := []string{string(Public), string(Private)}
+	opts := []string{string(Private), string(Public)}
 	privacy, err := goinp.SelectFromStringsWithDefault("Set privacy of the app", 1, opts)
 	return Privacy(privacy), err
 }
