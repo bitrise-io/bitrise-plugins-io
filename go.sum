@@ -1,5 +1,7 @@
 github.com/bitrise-io/go-utils v0.0.0-20180425140441-2d6572062046 h1:7gQmC3wpuau0kouhyr0CPerd52tqmilWABxScYLhJYI=
 github.com/bitrise-io/go-utils v0.0.0-20180425140441-2d6572062046/go.mod h1:Pp48eQd8BSNEzWWTBxdFUd/ufS5b5Bgkmt9D5NedjWg=
+github.com/bitrise-io/goinp v0.0.0-20171027153513-f451b19ba4d0 h1:HbT6RAubNciFs4emfiw7u2cMsWY7d6zIeFu7SdB6MSE=
+github.com/bitrise-io/goinp v0.0.0-20171027153513-f451b19ba4d0/go.mod h1:G0M1sK06a1l0KAg4rQei7q5dDKC/JrZoaXFqak91osU=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/inconshreveable/mousetrap v1.0.0/go.mod h1:PxqpIevigyE2G7u3NXJIT2ANytuPF1OarO4DADm73n8=
 github.com/pkg/errors v0.0.0-20180311214515-816c9085562c h1:F5RoIh7F9wB47PvXvpP1+Ihq1TkyC8iRdvwfKkESEZQ=

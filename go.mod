@@ -2,6 +2,7 @@ module github.com/bitrise-core/bitrise-plugins-io
 
 require (
 	github.com/bitrise-io/go-utils v0.0.0-20180425140441-2d6572062046
+	github.com/bitrise-io/goinp v0.0.0-20171027153513-f451b19ba4d0
 	github.com/davecgh/go-spew v1.1.0
 	github.com/inconshreveable/mousetrap v1.0.0
 	github.com/pkg/errors v0.0.0-20180311214515-816c9085562c
