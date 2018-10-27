@@ -8,6 +8,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var (
+	artifactsNextFlag  string
+	artifactsLimitFlag string
+)
+
 // artifactListCmd represents the list command
 var artifactListCmd = &cobra.Command{
 	Use:   "list",
@@ -20,6 +25,8 @@ var artifactListCmd = &cobra.Command{
 
 func init() {
 	artifactsCmd.AddCommand(artifactListCmd)
+	artifactListCmd.Flags().StringVarP(&artifactsNextFlag, "next", "n", "", "Next parameter for paging")
+	artifactListCmd.Flags().StringVarP(&artifactsLimitFlag, "limit", "l", "", "Limit parameter for paging")
 }
 
 // ArtifactsListReponseModel ...
@@ -52,7 +59,10 @@ func (respModel *ArtifactsListReponseModel) Pretty() string {
 }
 
 func artifactList() error {
-	params := map[string]string{}
+	params := map[string]string{
+		"next":  artifactsNextFlag,
+		"limit": artifactsLimitFlag,
+	}
 
 	response, err := services.GetBitriseArtifacts(artifactsAppIDFlag, artifactsBuildIDFlag, params)
 	if err != nil {
