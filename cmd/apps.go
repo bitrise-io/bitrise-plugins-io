@@ -3,7 +3,7 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/bitrise-core/bitrise-plugins-io/services"
+	"github.com/bitrise-io/bitrise-plugins-io/services"
 	"github.com/bitrise-io/go-utils/colorstring"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"

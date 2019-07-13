@@ -32,7 +32,7 @@
 * [a2d59ae] fixing auth command hint when no auth found + allow token as flag and as arg (#4)
 * [f2d715b] Output format (#3)
 * [c0e0a96] Update (#2)
-* [3b1756b] migrate to:  github.com/bitrise-core/bitrise-plugins-io (#1)
+* [3b1756b] migrate to:  github.com/bitrise-io/bitrise-plugins-io (#1)
 * [cd715d4] Move method to other file
 * [af04ab1] Token validation
 * [519b60a] Validation messages

@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/bitrise-core/bitrise-plugins-io/configs"
-	"github.com/bitrise-core/bitrise-plugins-io/services"
+	"github.com/bitrise-io/bitrise-plugins-io/configs"
+	"github.com/bitrise-io/bitrise-plugins-io/services"
 	"github.com/bitrise-io/go-utils/colorstring"
 	"github.com/bitrise-io/go-utils/envutil"
 	"github.com/bitrise-io/go-utils/log"

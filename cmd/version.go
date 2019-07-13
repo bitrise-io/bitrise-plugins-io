@@ -3,7 +3,7 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/bitrise-core/bitrise-plugins-io/version"
+	"github.com/bitrise-io/bitrise-plugins-io/version"
 	"github.com/spf13/cobra"
 )
 

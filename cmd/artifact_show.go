@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"github.com/bitrise-core/bitrise-plugins-io/services"
+	"github.com/bitrise-io/bitrise-plugins-io/services"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 )
