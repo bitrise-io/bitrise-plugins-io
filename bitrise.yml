@@ -88,9 +88,13 @@ workflows:
         - content: |-
             #!/usr/bin/env bash
             set -ex
-            go get -u -v github.com/golang/dep/cmd/dep
-            dep ensure -v
-            dep ensure -v -update
+
+            rm -rf ./vendor
+            rm -f go.mod go.sum
+
+            go mod init
+            go mod tidy
+            go mod vendor
   go-test:
     steps:
     - script:
@@ -107,7 +111,11 @@ workflows:
         - content: |-
             #!/usr/bin/env bash
             set -ex
+
+            cd /tmp
             go get -u github.com/kisielk/errcheck
+            cd -
+
             errcheck -asserts=true -blank=true $GOLIST_WITHOUT_VENDOR
     - script:
         title: Go lint
