@@ -123,7 +123,11 @@ workflows:
         - content: |-
             #!/usr/bin/env bash
             set -ex
+
+            cd /tmp
             go get -u golang.org/x/lint/golint
+            cd -
+
             while read -r line; do
               echo "-> Linting: $line"
               golint_out="$(golint $line)"
@@ -139,6 +143,7 @@ workflows:
         - content: |-
             #!/usr/bin/env bash
             set -ex
+
             go test $(go list ./... | grep -v vendor)
   integration-test:
     steps:
