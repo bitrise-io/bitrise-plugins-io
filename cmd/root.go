@@ -49,7 +49,7 @@ func Execute() {
 		} else if confErr, ok := errors.Cause(err).(*services.ConfigError); ok {
 			// Request Config Error (missing Personal Access Token)
 			printErrorOutput(confErr.Error(), formatFlag == formatPretty)
-		} else if reqFailErr, ok := errors.Cause(err).(*RequestFailedError); ok {
+		} else if reqFailErr, ok := errors.Cause(err).(*services.RequestFailedError); ok {
 			// Request Failed (non successful response) Error
 			response := reqFailErr.Response
 			if response.StatusCode == http.StatusUnauthorized {

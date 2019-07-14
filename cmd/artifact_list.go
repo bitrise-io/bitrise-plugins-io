@@ -70,7 +70,7 @@ func artifactList() error {
 	}
 
 	if response.Error != "" {
-		return NewRequestFailedError(response)
+		return services.NewRequestFailedError(response)
 	}
 
 	return errors.WithStack(printOutputWithPrettyFormatter(response.Data, formatFlag != formatJSON, &ArtifactsListReponseModel{}))

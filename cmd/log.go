@@ -84,7 +84,7 @@ func getLog(cmd *cobra.Command, args []string) error {
 	}
 
 	if response.Error != "" {
-		return NewRequestFailedError(response)
+		return services.NewRequestFailedError(response)
 	}
 
 	logInfo := struct {

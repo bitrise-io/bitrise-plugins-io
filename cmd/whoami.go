@@ -42,7 +42,7 @@ func whoami() error {
 	}
 
 	if response.Error != "" {
-		return NewRequestFailedError(response)
+		return services.NewRequestFailedError(response)
 	}
 
 	return errors.WithStack(printOutputWithPrettyFormatter(response.Data, formatFlag != "json", &MeResponseModel{}))

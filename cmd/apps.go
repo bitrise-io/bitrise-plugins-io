@@ -30,22 +30,12 @@ func init() {
 	appsCmd.Flags().StringVar(&appsSortFlag, "sort", "last_build_at", "Sort by parameter for listing. Options: [created_at, last_build_at]")
 }
 
-// AppsListResponseItemModel ...
-type AppsListResponseItemModel struct {
-	Title string `json:"title"`
-	Slug  string `json:"slug"`
-	Owner struct {
-		Name string `json:"name"`
-	} `json:"owner"`
-}
-
-// AppsListResponseModel ...
-type AppsListResponseModel struct {
-	Data []AppsListResponseItemModel `json:"data"`
+type appsFormatter struct {
+	*services.AppsListResponseModel
 }
 
 // Pretty ...
-func (respModel *AppsListResponseModel) Pretty() string {
+func (respModel *appsFormatter) Pretty() string {
 	s := ""
 	for _, aAppData := range respModel.Data {
 		s += fmt.Sprintf("%s / %s (%s)\n", aAppData.Owner.Name, colorstring.Green(aAppData.Title), aAppData.Slug)
@@ -66,8 +56,8 @@ func apps() error {
 	}
 
 	if response.Error != "" {
-		return NewRequestFailedError(response)
+		return services.NewRequestFailedError(response)
 	}
 
-	return errors.WithStack(printOutputWithPrettyFormatter(response.Data, formatFlag != "json", &AppsListResponseModel{}))
+	return errors.WithStack(printOutputWithPrettyFormatter(response.Data, formatFlag != "json", &appsFormatter{}))
 }
