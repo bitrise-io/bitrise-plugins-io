@@ -30,15 +30,18 @@ func init() {
 	appsCmd.Flags().StringVar(&appsSortFlag, "sort", "last_build_at", "Sort by parameter for listing. Options: [created_at, last_build_at]")
 }
 
+// AppsListResponseItemModel ...
+type AppsListResponseItemModel struct {
+	Title string `json:"title"`
+	Slug  string `json:"slug"`
+	Owner struct {
+		Name string `json:"name"`
+	} `json:"owner"`
+}
+
 // AppsListResponseModel ...
 type AppsListResponseModel struct {
-	Data []struct {
-		Title string `json:"title"`
-		Slug  string `json:"slug"`
-		Owner struct {
-			Name string `json:"name"`
-		} `json:"owner"`
-	} `json:"data"`
+	Data []AppsListResponseItemModel `json:"data"`
 }
 
 // Pretty ...
