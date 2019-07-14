@@ -17,7 +17,8 @@ in an interactive terminal/command line based UI.
 `,
 	RunE: func(cmd *cobra.Command, args []string) error {
 
-		navigator := views.NewNavigationController()
+		app := tview.NewApplication()
+		navigator := views.NewNavigationController(app)
 
 		appsListView, err := views.NewAppsListViewController(navigator)
 		if err != nil {
@@ -26,14 +27,10 @@ in an interactive terminal/command line based UI.
 
 		navigator.PushViewController(appsListView)
 
-		app := tview.NewApplication()
 		app.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 			if event.Key() == tcell.KeyCtrlQ {
 				app.Stop()
 			}
-			// if event.Rune() == 'q' {
-			// 	app.Stop()
-			// }
 			return event
 		})
 

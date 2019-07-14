@@ -13,7 +13,8 @@ import (
 
 // AppsListViewController ...
 type AppsListViewController struct {
-	view *tview.List
+	view tview.Primitive
+	apps services.AppsListResponseModel
 }
 
 // View ...
@@ -21,22 +22,8 @@ func (vc *AppsListViewController) View() tview.Primitive {
 	return vc.view
 }
 
-// NewAppsListViewController ...
-func NewAppsListViewController(navigationController *NavigationController) (*AppsListViewController, error) {
-	appsListView := tview.NewList()
-	appsListView.SetTitle("Apps").SetBorder(true)
-	// appsListView := tview.NewTable().SetBorders(true)
-	// appsListView.SetTitle("Apps").SetBorder(true)
-
-	// appsListView.SetCell(0, 0, &tview.TableCell{Text: "Owner", Align: tview.AlignCenter, Color: tcell.ColorYellow})
-	// appsListView.SetCell(0, 1, &tview.TableCell{Text: "Title", Align: tview.AlignCenter, Color: tcell.ColorYellow})
-	// appsListView.SetCell(0, 2, &tview.TableCell{Text: "ID", Align: tview.AlignCenter, Color: tcell.ColorYellow})
-
-	apps, err := getApps()
-	if err != nil {
-		return nil, errors.WithStack(err)
-	}
-
+func reloadAppsListView(appsListView *tview.List, apps services.AppsListResponseModel, navigationController *NavigationController) {
+	appsListView.Clear()
 	for i, aAppData := range apps.Data {
 		aAppSlug := aAppData.Slug
 		appsListView.AddItem(
@@ -50,32 +37,95 @@ func NewAppsListViewController(navigationController *NavigationController) (*App
 				}
 				navigationController.PushViewController(buildsListViewController)
 			})
-		// appsListView.SetCell(i+1, 0, &tview.TableCell{Text: aAppData.Owner.Name, Color: tcell.ColorDefault})
-		// appsListView.SetCell(i+1, 1, &tview.TableCell{Text: aAppData.Title, Color: tcell.ColorDefault})
-		// appsListView.SetCell(i+1, 2, &tview.TableCell{Text: aAppData.Slug, Color: tcell.ColorDefault})
+	}
+}
+
+func reloadAppsDataAndView(titleFilter string, appsListView *tview.List, navigationController *NavigationController) (services.AppsListResponseModel, error) {
+	apps, err := getApps(titleFilter)
+	if err != nil {
+		return apps, errors.WithStack(err)
+	}
+	reloadAppsListView(appsListView, apps, navigationController)
+
+	listTitle := "Apps"
+	if len(titleFilter) > 0 {
+		listTitle = fmt.Sprintf("Apps (%s)", titleFilter)
+	}
+	appsListView.SetTitle(listTitle)
+	return apps, nil
+}
+
+// NewAppsListViewController ...
+func NewAppsListViewController(navigationController *NavigationController) (*AppsListViewController, error) {
+	layoutView := tview.NewFlex().SetDirection(tview.FlexRow)
+	appsListViewController := &AppsListViewController{
+		view: layoutView,
 	}
 
+	appsListView := tview.NewList()
+	appsListView.SetTitle("Apps").SetBorder(true)
+
+	apps, err := reloadAppsDataAndView("", appsListView, navigationController)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	searchInputField := tview.NewInputField().
+		SetLabel("Search: ")
+	searchInputField.SetDoneFunc(func(key tcell.Key) {
+		layoutView.RemoveItem(searchInputField)
+		navigationController.FocusOnView(layoutView)
+		// reload apps list with the new filter
+		titleFilter := searchInputField.GetText()
+		a, err := reloadAppsDataAndView(titleFilter, appsListView, navigationController)
+		if err != nil {
+			panic(errors.WithStack(err))
+		}
+		apps = a
+	})
+
 	appsListView.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-		if event.Rune() == 'o' {
+		switch {
+		case event.Key() == tcell.KeyEscape:
+			navigationController.FocusOnView(appsListView)
+		case event.Rune() == 'o':
 			currItemIdx := appsListView.GetCurrentItem()
 			currHighlightedApp := apps.Data[currItemIdx]
 			if err := utils.OpenPageInBrowser(currHighlightedApp.Slug, ""); err != nil {
 				infoPopupVC := NewInfoPopupViewController(err.Error(), navigationController)
 				navigationController.PushViewController(infoPopupVC)
 			}
+		case event.Rune() == 'f':
+			layoutView.AddItem(searchInputField, 0, 1, true)
+			navigationController.FocusOnView(searchInputField)
+		case event.Rune() == '?':
+			hotkeysPopupVC := NewInfoPopupViewController(`Hotkeys:
+
+Base navigation:
+- arrow keys: move item selection
+- enter: select highlighted item
+- esc: back
+
+Other:
+- f: filter
+- o: open in browser
+- ctrl+q: quit
+- ctrl+c: quit
+`, navigationController)
+			navigationController.PushViewController(hotkeysPopupVC)
 		}
 		return event
 	})
 
-	return &AppsListViewController{
-		view: appsListView,
-	}, nil
+	layoutView.AddItem(appsListView, 0, 1, true)
+
+	return appsListViewController, nil
 }
 
-func getApps() (services.AppsListResponseModel, error) {
+func getApps(titleFilter string) (services.AppsListResponseModel, error) {
 	appListResp := services.AppsListResponseModel{}
 
-	response, err := services.GetBitriseAppsForUser("", "", services.SortAppsByLastBuildAt, "")
+	response, err := services.GetBitriseAppsForUser("", "", services.SortAppsByLastBuildAt, titleFilter)
 	if err != nil {
 		return appListResp, errors.WithStack(err)
 	}
