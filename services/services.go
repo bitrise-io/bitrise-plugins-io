@@ -86,9 +86,23 @@ func bitrisePostRequest(subURL string, requestBody map[string]interface{}) (Resp
 	return wrapResponse(resp)
 }
 
+// AppSortBy ...
+type AppSortBy string
+
+const (
+	// SortAppsByCreatedAt ...
+	SortAppsByCreatedAt AppSortBy = "created_at"
+	// SortAppsByLastBuildAt ...
+	SortAppsByLastBuildAt AppSortBy = "last_build_at"
+)
+
 // GetBitriseAppsForUser ...
-func GetBitriseAppsForUser(params map[string]string) (Response, error) {
-	return bitriseGetRequest("apps", params)
+func GetBitriseAppsForUser(next, limit string, sortBy AppSortBy) (Response, error) {
+	return bitriseGetRequest("apps", map[string]string{
+		"next":    next,
+		"limit":   limit,
+		"sort_by": string(sortBy),
+	})
 }
 
 // GetBitriseBuildsForApp ...

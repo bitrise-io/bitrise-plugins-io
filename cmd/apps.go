@@ -27,7 +27,8 @@ func init() {
 	rootCmd.AddCommand(appsCmd)
 	appsCmd.Flags().StringVar(&appsNextFlag, "next", "", "Next parameter for paging")
 	appsCmd.Flags().StringVarP(&appsLimitFlag, "limit", "l", "", "Limit parameter for paging")
-	appsCmd.Flags().StringVar(&appsSortFlag, "sort", "last_build_at", "Sort by parameter for listing. Options: [created_at, last_build_at]")
+	appsCmd.Flags().StringVar(&appsSortFlag, "sort", string(services.SortAppsByLastBuildAt),
+		fmt.Sprintf("Sort by parameter for listing. Options: [%s, %s]", services.SortAppsByLastBuildAt, services.SortAppsByCreatedAt))
 }
 
 type appsFormatter struct {
@@ -44,13 +45,7 @@ func (respModel *appsFormatter) Pretty() string {
 }
 
 func apps() error {
-	params := map[string]string{
-		"next":    appsNextFlag,
-		"limit":   appsLimitFlag,
-		"sort_by": appsSortFlag,
-	}
-
-	response, err := services.GetBitriseAppsForUser(params)
+	response, err := services.GetBitriseAppsForUser(appsNextFlag, appsLimitFlag, services.AppSortBy(appsSortFlag))
 	if err != nil {
 		return errors.WithStack(err)
 	}
