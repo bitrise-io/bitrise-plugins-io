@@ -75,7 +75,7 @@ func NewAppsListViewController(navigationController *NavigationController) (*App
 func getApps() (services.AppsListResponseModel, error) {
 	appListResp := services.AppsListResponseModel{}
 
-	response, err := services.GetBitriseAppsForUser("", "", services.SortAppsByLastBuildAt)
+	response, err := services.GetBitriseAppsForUser("", "", services.SortAppsByLastBuildAt, "")
 	if err != nil {
 		return appListResp, errors.WithStack(err)
 	}

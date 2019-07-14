@@ -10,9 +10,10 @@ import (
 )
 
 var (
-	appsNextFlag  string
-	appsLimitFlag string
-	appsSortFlag  string
+	appsNextFlag        string
+	appsLimitFlag       string
+	appsSortFlag        string
+	appsTitleFilterFlag string
 )
 
 var appsCmd = &cobra.Command{
@@ -27,6 +28,7 @@ func init() {
 	rootCmd.AddCommand(appsCmd)
 	appsCmd.Flags().StringVar(&appsNextFlag, "next", "", "Next parameter for paging")
 	appsCmd.Flags().StringVarP(&appsLimitFlag, "limit", "l", "", "Limit parameter for paging")
+	appsCmd.Flags().StringVar(&appsTitleFilterFlag, "title", "", "Title filter. If specified list only apps with matching title.")
 	appsCmd.Flags().StringVar(&appsSortFlag, "sort", string(services.SortAppsByLastBuildAt),
 		fmt.Sprintf("Sort by parameter for listing. Options: [%s, %s]", services.SortAppsByLastBuildAt, services.SortAppsByCreatedAt))
 }
@@ -45,7 +47,7 @@ func (respModel *appsFormatter) Pretty() string {
 }
 
 func apps() error {
-	response, err := services.GetBitriseAppsForUser(appsNextFlag, appsLimitFlag, services.AppSortBy(appsSortFlag))
+	response, err := services.GetBitriseAppsForUser(appsNextFlag, appsLimitFlag, services.AppSortBy(appsSortFlag), appsTitleFilterFlag)
 	if err != nil {
 		return errors.WithStack(err)
 	}

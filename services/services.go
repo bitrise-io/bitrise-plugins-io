@@ -97,11 +97,12 @@ const (
 )
 
 // GetBitriseAppsForUser ...
-func GetBitriseAppsForUser(next, limit string, sortBy AppSortBy) (Response, error) {
+func GetBitriseAppsForUser(next, limit string, sortBy AppSortBy, title string) (Response, error) {
 	return bitriseGetRequest("apps", map[string]string{
 		"next":    next,
 		"limit":   limit,
 		"sort_by": string(sortBy),
+		"title":   title,
 	})
 }
 
