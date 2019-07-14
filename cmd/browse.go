@@ -5,6 +5,7 @@ import (
 
 	"github.com/bitrise-io/bitrise-plugins-io/utils"
 	"github.com/bitrise-io/go-utils/colorstring"
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 )
 
@@ -21,7 +22,9 @@ var browseCmd = &cobra.Command{
 		urlToOpen := utils.GetURLForPage(browseAppSlugFlag, browseBuildSlugFlag)
 		if browseOpenInBrowserFlag {
 			fmt.Println(colorstring.Yellow("Opening URL:"), urlToOpen)
-			utils.OpenURLInBrowser(urlToOpen)
+			if err := utils.OpenURLInBrowser(urlToOpen); err != nil {
+				return errors.WithStack(err)
+			}
 		} else {
 			fmt.Println(colorstring.Yellow("URL:"), urlToOpen)
 		}
