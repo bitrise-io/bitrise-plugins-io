@@ -8,12 +8,26 @@ github.com/bitrise-io/go-utils/pathutil
 github.com/bitrise-io/go-utils/errorutil
 # github.com/davecgh/go-spew v1.1.1
 github.com/davecgh/go-spew/spew
+# github.com/gdamore/encoding v1.0.0
+github.com/gdamore/encoding
+# github.com/gdamore/tcell v1.1.4
+github.com/gdamore/tcell
+github.com/gdamore/tcell/terminfo
+github.com/gdamore/tcell/terminfo/dynamic
 # github.com/inconshreveable/mousetrap v1.0.0
 github.com/inconshreveable/mousetrap
+# github.com/lucasb-eyer/go-colorful v1.0.2
+github.com/lucasb-eyer/go-colorful
+# github.com/mattn/go-runewidth v0.0.4
+github.com/mattn/go-runewidth
 # github.com/pkg/errors v0.8.1
 github.com/pkg/errors
 # github.com/pmezard/go-difflib v1.0.0
 github.com/pmezard/go-difflib/difflib
+# github.com/rivo/tview v0.0.0-20190711103727-f63eca142cd2
+github.com/rivo/tview
+# github.com/rivo/uniseg v0.0.0-20190513083848-b9f5b9457d44
+github.com/rivo/uniseg
 # github.com/spf13/cobra v0.0.5
 github.com/spf13/cobra
 # github.com/spf13/pflag v1.0.3
@@ -21,5 +35,11 @@ github.com/spf13/pflag
 # github.com/stretchr/testify v1.3.0
 github.com/stretchr/testify/require
 github.com/stretchr/testify/assert
+# golang.org/x/sys v0.0.0-20190626150813-e07cf5db2756
+golang.org/x/sys/unix
+# golang.org/x/text v0.3.0
+golang.org/x/text/encoding
+golang.org/x/text/transform
+golang.org/x/text/encoding/internal/identifier
 # gopkg.in/yaml.v2 v2.2.2
 gopkg.in/yaml.v2
