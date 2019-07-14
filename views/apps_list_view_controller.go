@@ -111,6 +111,7 @@ Other:
 - o: open in browser
 - ctrl+q: quit
 - ctrl+c: quit
+- ?: show hotkeys
 `, navigationController)
 			navigationController.PushViewController(hotkeysPopupVC)
 		}
