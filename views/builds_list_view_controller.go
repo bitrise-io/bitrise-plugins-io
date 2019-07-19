@@ -42,9 +42,9 @@ func NewBuildsListViewController(appSlug string, navigationController *Navigatio
 		panic(errors.WithStack(err))
 	}
 
-	for i, aBuildData := range buildListResp.Data {
+	for _, aBuildData := range buildListResp.Data {
 		buildsListView.AddItem(
-			fmt.Sprintf("[#%d] %d / %s (%s)", i, aBuildData.BuildNumber, formatter.PrettyOneLinerText(aBuildData.CommitMessage), aBuildData.TriggeredWorkflow),
+			fmt.Sprintf("[#%d] %s (workflow:%s) (branch:%s)", aBuildData.BuildNumber, formatter.PrettyOneLinerText(aBuildData.CommitMessage), aBuildData.TriggeredWorkflow, aBuildData.Branch),
 			// fmt.Sprintf("[#%d] %+v", i, aBuildData),
 			"",
 			0,
