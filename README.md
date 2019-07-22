@@ -7,7 +7,7 @@ A Terminal / Command Line interface for bitrise.io, to manage your apps on bitri
 You can install this [Bitrise CLI](https://www.bitrise.io/cli) plugin using the bitrise cli:
 
 ```
-bitrise plugin install https://github.com/bitrise-core/bitrise-plugins-io.git
+bitrise plugin install https://github.com/bitrise-io/bitrise-plugins-io.git
 ```
 
 ## How to use

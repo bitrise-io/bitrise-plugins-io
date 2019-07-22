@@ -3,7 +3,7 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/bitrise-core/bitrise-plugins-io/services"
+	"github.com/bitrise-io/bitrise-plugins-io/services"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 )
@@ -42,7 +42,7 @@ func whoami() error {
 	}
 
 	if response.Error != "" {
-		return NewRequestFailedError(response)
+		return services.NewRequestFailedError(response)
 	}
 
 	return errors.WithStack(printOutputWithPrettyFormatter(response.Data, formatFlag != "json", &MeResponseModel{}))

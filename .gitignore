@@ -3,3 +3,4 @@ _tmp/
 .gows*
 .bitrise.secrets.yml
 bitrise-plugins.io
+.vscode/

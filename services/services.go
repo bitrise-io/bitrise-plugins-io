@@ -6,7 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/bitrise-core/bitrise-plugins-io/configs"
+	"github.com/bitrise-io/bitrise-plugins-io/configs"
 	"github.com/bitrise-io/go-utils/log"
 	"github.com/pkg/errors"
 )
@@ -86,9 +86,24 @@ func bitrisePostRequest(subURL string, requestBody map[string]interface{}) (Resp
 	return wrapResponse(resp)
 }
 
+// AppSortBy ...
+type AppSortBy string
+
+const (
+	// SortAppsByCreatedAt ...
+	SortAppsByCreatedAt AppSortBy = "created_at"
+	// SortAppsByLastBuildAt ...
+	SortAppsByLastBuildAt AppSortBy = "last_build_at"
+)
+
 // GetBitriseAppsForUser ...
-func GetBitriseAppsForUser(params map[string]string) (Response, error) {
-	return bitriseGetRequest("apps", params)
+func GetBitriseAppsForUser(next, limit string, sortBy AppSortBy, title string) (Response, error) {
+	return bitriseGetRequest("apps", map[string]string{
+		"next":    next,
+		"limit":   limit,
+		"sort_by": string(sortBy),
+		"title":   title,
+	})
 }
 
 // GetBitriseBuildsForApp ...
@@ -109,6 +124,35 @@ func GetBitriseArtifact(appSlug, buildSlug, artifactSlug string, params map[stri
 // GetBuildLogInfo ...
 func GetBuildLogInfo(appSlug, buildSlug string, params map[string]string) (Response, error) {
 	return bitriseGetRequest(fmt.Sprintf("apps/%s/builds/%s/log", appSlug, buildSlug), params)
+}
+
+// LoadFullLog ...
+func LoadFullLog(fullLogURL string) ([]byte, error) {
+	req, err := http.NewRequest("GET", fullLogURL, nil)
+	if err != nil {
+		return nil, errors.Wrap(err, "Failed to create request")
+	}
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, errors.Wrap(err, "Failed to send request")
+	}
+	defer responseBodyCloser(resp)
+
+	data, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+	return data, nil
+}
+
+// responseBodyCloser closes a HTTP response body with logging the error
+func responseBodyCloser(resp *http.Response) {
+	if err := resp.Body.Close(); err != nil {
+		// TODO: modify this to use logrus
+		log.Printf("Failed to close response body: %+v", errors.WithStack(err))
+	}
 }
 
 // ValidateAuthToken ...

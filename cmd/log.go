@@ -3,12 +3,9 @@ package cmd
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"log"
-	"net/http"
 	"strings"
 
-	"github.com/bitrise-core/bitrise-plugins-io/services"
+	"github.com/bitrise-io/bitrise-plugins-io/services"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 )
@@ -34,34 +31,6 @@ func init() {
 	logCmd.Flags().StringVarP(&logBuildSlugFlag, "build", "b", "", "Slug of the build where the log belong to")
 }
 
-func loadFullLog(fullLogURL string) ([]byte, error) {
-	req, err := http.NewRequest("GET", fullLogURL, nil)
-	if err != nil {
-		return nil, errors.Wrap(err, "Failed to create request")
-	}
-
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return nil, errors.Wrap(err, "Failed to send request")
-	}
-	defer responseBodyCloser(resp)
-
-	data, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return nil, errors.WithStack(err)
-	}
-	return data, nil
-}
-
-// responseBodyCloser closes a HTTP response body with logging the error
-func responseBodyCloser(resp *http.Response) {
-	if err := resp.Body.Close(); err != nil {
-		// TODO: modify this to use logrus
-		log.Printf("Failed to close response body: %+v", errors.WithStack(err))
-	}
-}
-
 func getLog(cmd *cobra.Command, args []string) error {
 	if len(args) > 0 {
 		if len(args) > 1 {
@@ -84,7 +53,7 @@ func getLog(cmd *cobra.Command, args []string) error {
 	}
 
 	if response.Error != "" {
-		return NewRequestFailedError(response)
+		return services.NewRequestFailedError(response)
 	}
 
 	logInfo := struct {
@@ -97,7 +66,7 @@ func getLog(cmd *cobra.Command, args []string) error {
 	}
 
 	fmt.Println("Downloading full log ...")
-	fullLogData, err := loadFullLog(logInfo.ExpiringRawLogURL)
+	fullLogData, err := services.LoadFullLog(logInfo.ExpiringRawLogURL)
 	if err != nil {
 		return errors.WithStack(err)
 	}

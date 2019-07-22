@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"github.com/bitrise-core/bitrise-plugins-io/services"
+	"github.com/bitrise-io/bitrise-plugins-io/services"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 )
@@ -33,7 +33,7 @@ func fetchArtifact(appID, buildID, artifactID string, params map[string]string) 
 	}
 
 	if response.Error != "" {
-		return services.Response{}, NewRequestFailedError(response)
+		return services.Response{}, services.NewRequestFailedError(response)
 	}
 
 	return response, nil

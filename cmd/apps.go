@@ -3,16 +3,17 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/bitrise-core/bitrise-plugins-io/services"
+	"github.com/bitrise-io/bitrise-plugins-io/services"
 	"github.com/bitrise-io/go-utils/colorstring"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 )
 
 var (
-	appsNextFlag  string
-	appsLimitFlag string
-	appsSortFlag  string
+	appsNextFlag        string
+	appsLimitFlag       string
+	appsSortFlag        string
+	appsTitleFilterFlag string
 )
 
 var appsCmd = &cobra.Command{
@@ -27,22 +28,17 @@ func init() {
 	rootCmd.AddCommand(appsCmd)
 	appsCmd.Flags().StringVar(&appsNextFlag, "next", "", "Next parameter for paging")
 	appsCmd.Flags().StringVarP(&appsLimitFlag, "limit", "l", "", "Limit parameter for paging")
-	appsCmd.Flags().StringVar(&appsSortFlag, "sort", "last_build_at", "Sort by parameter for listing. Options: [created_at, last_build_at]")
+	appsCmd.Flags().StringVar(&appsTitleFilterFlag, "title", "", "Title filter. If specified list only apps with matching title.")
+	appsCmd.Flags().StringVar(&appsSortFlag, "sort", string(services.SortAppsByLastBuildAt),
+		fmt.Sprintf("Sort by parameter for listing. Options: [%s, %s]", services.SortAppsByLastBuildAt, services.SortAppsByCreatedAt))
 }
 
-// AppsListResponseModel ...
-type AppsListResponseModel struct {
-	Data []struct {
-		Title string `json:"title"`
-		Slug  string `json:"slug"`
-		Owner struct {
-			Name string `json:"name"`
-		} `json:"owner"`
-	} `json:"data"`
+type appsFormatter struct {
+	*services.AppsListResponseModel
 }
 
 // Pretty ...
-func (respModel *AppsListResponseModel) Pretty() string {
+func (respModel *appsFormatter) Pretty() string {
 	s := ""
 	for _, aAppData := range respModel.Data {
 		s += fmt.Sprintf("%s / %s (%s)\n", aAppData.Owner.Name, colorstring.Green(aAppData.Title), aAppData.Slug)
@@ -51,20 +47,14 @@ func (respModel *AppsListResponseModel) Pretty() string {
 }
 
 func apps() error {
-	params := map[string]string{
-		"next":    appsNextFlag,
-		"limit":   appsLimitFlag,
-		"sort_by": appsSortFlag,
-	}
-
-	response, err := services.GetBitriseAppsForUser(params)
+	response, err := services.GetBitriseAppsForUser(appsNextFlag, appsLimitFlag, services.AppSortBy(appsSortFlag), appsTitleFilterFlag)
 	if err != nil {
 		return errors.WithStack(err)
 	}
 
 	if response.Error != "" {
-		return NewRequestFailedError(response)
+		return services.NewRequestFailedError(response)
 	}
 
-	return errors.WithStack(printOutputWithPrettyFormatter(response.Data, formatFlag != "json", &AppsListResponseModel{}))
+	return errors.WithStack(printOutputWithPrettyFormatter(response.Data, formatFlag != "json", &appsFormatter{}))
 }

@@ -6,7 +6,8 @@ import (
 	"strings"
 	"text/tabwriter"
 
-	"github.com/bitrise-core/bitrise-plugins-io/services"
+	"github.com/bitrise-io/bitrise-plugins-io/services"
+	"github.com/bitrise-io/bitrise-plugins-io/views/formatter"
 	"github.com/bitrise-io/go-utils/colorstring"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
@@ -35,37 +36,11 @@ func init() {
 	buildsCmd.Flags().StringVarP(&buildsAppSlugFlag, "app", "a", "", "Slug of the app where the builds belong to")
 }
 
-// BuildsReponseModel ...
-type BuildsReponseModel struct {
-	Slug                    string `json:"slug"`
-	Status                  int    `json:"status"`
-	StatusText              string `json:"status_text"`
-	IsOnHold                bool   `json:"is_on_hold"`
-	BuildNumber             int    `json:"build_number"`
-	Branch                  string `json:"branch"`
-	Tag                     string `json:"tag"`
-	PullRequestTargetBranch string `json:"pull_request_target_branch"`
-	PullRequestID           int    `json:"pull_request_id"`
-	CommitHash              string `json:"commit_hash"`
-	CommitMessage           string `json:"commit_message"`
-	TriggeredWorkflow       string `json:"triggered_workflow"`
-	TriggeredBy             string `json:"triggered_by"`
+type buildsFormatter struct {
+	*services.BuildsListItemReponseModel
 }
-
-// BuildsListReponseModel ...
-type BuildsListReponseModel struct {
-	Data []BuildsReponseModel `json:"data"`
-}
-
-// TriggerInfoString ...
-func (respModel *BuildsReponseModel) TriggerInfoString() string {
-	if respModel.PullRequestID > 0 {
-		return fmt.Sprintf("(#%d) %s > %s", respModel.PullRequestID, respModel.Branch, respModel.PullRequestTargetBranch)
-	}
-	if len(respModel.Tag) > 0 {
-		return fmt.Sprintf("tag: %s", respModel.Tag)
-	}
-	return fmt.Sprintf("push: %s", respModel.Branch)
+type buildsListFormatter struct {
+	*services.BuildsListReponseModel
 }
 
 func coloredStatusText(statusText string) string {
@@ -81,14 +56,6 @@ func coloredStatusText(statusText string) string {
 	return colorFN(statusText)
 }
 
-func prettyOneLinerText(msg string) string {
-	s := fmt.Sprintf("%.50s", msg)         // print the first X chars
-	s = strings.Replace(s, "\n", "↲", -1)  // replace newlines
-	s = strings.Replace(s, "\r", "↲", -1)  // replace newlines
-	s = strings.Replace(s, "\t", "  ", -1) // replace tabs
-	return s
-}
-
 func prettyPR(prID int) string {
 	if prID == 0 {
 		// empty string if zero
@@ -98,7 +65,7 @@ func prettyPR(prID int) string {
 }
 
 // Pretty ...
-func (respModel *BuildsListReponseModel) Pretty() string {
+func (respModel *buildsListFormatter) Pretty() string {
 	buf := bytes.NewBuffer([]byte{})
 	prettyTabWriter := tabwriter.NewWriter(buf, 0, 0, 1, ' ', 0)
 	if _, err := fmt.Fprintln(prettyTabWriter, "#\t"+colorstring.Blue("Status")+"\tSlug\tTrigger Info\tMessage\tWorkflow"); err != nil {
@@ -110,7 +77,7 @@ func (respModel *BuildsListReponseModel) Pretty() string {
 			coloredStatusText(aItem.StatusText),
 			aItem.Slug,
 			aItem.TriggerInfoString(),
-			prettyOneLinerText(aItem.CommitMessage),
+			formatter.PrettyOneLinerText(aItem.CommitMessage),
 			aItem.TriggeredWorkflow,
 		}
 		if _, err := fmt.Fprintln(prettyTabWriter, strings.Join(fields, "\t")); err != nil {
@@ -136,8 +103,8 @@ func builds() error {
 	}
 
 	if response.Error != "" {
-		return NewRequestFailedError(response)
+		return services.NewRequestFailedError(response)
 	}
 
-	return errors.WithStack(printOutputWithPrettyFormatter(response.Data, formatFlag != "json", &BuildsListReponseModel{}))
+	return errors.WithStack(printOutputWithPrettyFormatter(response.Data, formatFlag != "json", &buildsListFormatter{}))
 }
