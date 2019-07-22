@@ -46,7 +46,9 @@ func NewLogsViewController(appSlug, buildSlug string, navigationController *Navi
 		return nil, errors.WithStack(err)
 	}
 	ansiLogViewWriter := tview.ANSIWriter(logView)
-	fmt.Fprintf(ansiLogViewWriter, "%s", buildLogText)
+	if _, err := fmt.Fprintf(ansiLogViewWriter, "%s", buildLogText); err != nil {
+		return nil, errors.WithStack(err)
+	}
 
 	return logsViewController, nil
 }
