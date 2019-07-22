@@ -15,10 +15,11 @@ import (
 
 // BuildsListViewController ...
 type BuildsListViewController struct {
-	appSlug        string
-	view           tview.Primitive
-	buildsListView *tview.List
-	builds         services.BuildsListReponseModel
+	appSlug              string
+	view                 tview.Primitive
+	buildsListView       *tview.List
+	navigationController *NavigationController
+	builds               services.BuildsListReponseModel
 }
 
 // View ...
@@ -88,9 +89,10 @@ func NewBuildsListViewController(appSlug string, navigationController *Navigatio
 
 	layoutView := tview.NewFlex().SetDirection(tview.FlexRow)
 	buildsListViewController := &BuildsListViewController{
-		appSlug:        appSlug,
-		view:           layoutView,
-		buildsListView: buildsListView,
+		appSlug:              appSlug,
+		view:                 layoutView,
+		buildsListView:       buildsListView,
+		navigationController: navigationController,
 	}
 
 	if err := buildsListViewController.reloadBuilds(); err != nil {
@@ -111,6 +113,13 @@ func NewBuildsListViewController(appSlug string, navigationController *Navigatio
 			if err := buildsListViewController.reloadBuilds(); err != nil {
 				panic(errors.WithStack(err))
 			}
+		case event.Rune() == 'l':
+			currHighlightedBuild := buildsListViewController.getSelectedBuildData()
+			logsViewController, err := NewLogsViewController(appSlug, currHighlightedBuild.Slug, navigationController)
+			if err != nil {
+				panic(err)
+			}
+			navigationController.PushViewController(logsViewController)
 		}
 		return event
 	})
@@ -133,6 +142,7 @@ func NewBuildsListViewController(appSlug string, navigationController *Navigatio
 				// "f": "filter",
 				"o": "open in browser",
 				"r": "reload builds",
+				"l": "logs",
 			},
 		}
 		for cmdRowIdx, commandRow := range commands {
