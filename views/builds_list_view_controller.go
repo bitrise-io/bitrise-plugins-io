@@ -27,6 +27,19 @@ func (vc *BuildsListViewController) View() tview.Primitive {
 	return vc.view
 }
 
+func coloredStatusText(statusText, textToColorize string) string {
+	colorNameID := "[-:-:-]"
+	switch statusText {
+	case "success":
+		colorNameID = "[green]"
+	case "error":
+		colorNameID = "[red]"
+	case "aborted":
+		colorNameID = "[yellow]"
+	}
+	return fmt.Sprintf("%s%s[-:-:-]", colorNameID, textToColorize)
+}
+
 func (vc *BuildsListViewController) reloadBuilds() error {
 	buildListResp, err := getBuilds(vc.appSlug)
 	if err != nil {
@@ -36,14 +49,15 @@ func (vc *BuildsListViewController) reloadBuilds() error {
 
 	vc.buildsListView.Clear()
 	for _, aBuildData := range buildListResp.Data {
+		buildItemText := fmt.Sprintf("[#%d] %s (workflow:%s) (branch:%s) (at:%s)",
+			aBuildData.BuildNumber,
+			formatter.PrettyOneLinerText(aBuildData.CommitMessage),
+			aBuildData.TriggeredWorkflow,
+			aBuildData.Branch,
+			aBuildData.TriggeredAt,
+		)
 		vc.buildsListView.AddItem(
-			fmt.Sprintf("[#%d] %s (workflow:%s) (branch:%s) (at:%s)",
-				aBuildData.BuildNumber,
-				formatter.PrettyOneLinerText(aBuildData.CommitMessage),
-				aBuildData.TriggeredWorkflow,
-				aBuildData.Branch,
-				aBuildData.TriggeredAt,
-			),
+			coloredStatusText(aBuildData.StatusText, buildItemText),
 			// fmt.Sprintf("[#%d] %+v", i, aBuildData),
 			"",
 			0,
