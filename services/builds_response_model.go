@@ -2,8 +2,8 @@ package services
 
 import "fmt"
 
-// BuildsReponseModel ...
-type BuildsReponseModel struct {
+// BuildsListItemReponseModel ...
+type BuildsListItemReponseModel struct {
 	Slug                    string `json:"slug"`
 	Status                  int    `json:"status"`
 	StatusText              string `json:"status_text"`
@@ -17,15 +17,16 @@ type BuildsReponseModel struct {
 	CommitMessage           string `json:"commit_message"`
 	TriggeredWorkflow       string `json:"triggered_workflow"`
 	TriggeredBy             string `json:"triggered_by"`
+	TriggeredAt             string `json:"triggered_at"`
 }
 
 // BuildsListReponseModel ...
 type BuildsListReponseModel struct {
-	Data []BuildsReponseModel `json:"data"`
+	Data []BuildsListItemReponseModel `json:"data"`
 }
 
 // TriggerInfoString ...
-func (respModel *BuildsReponseModel) TriggerInfoString() string {
+func (respModel *BuildsListItemReponseModel) TriggerInfoString() string {
 	if respModel.PullRequestID > 0 {
 		return fmt.Sprintf("(#%d) %s > %s", respModel.PullRequestID, respModel.Branch, respModel.PullRequestTargetBranch)
 	}

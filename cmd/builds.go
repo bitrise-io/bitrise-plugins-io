@@ -37,7 +37,7 @@ func init() {
 }
 
 type buildsFormatter struct {
-	*services.BuildsReponseModel
+	*services.BuildsListItemReponseModel
 }
 type buildsListFormatter struct {
 	*services.BuildsListReponseModel

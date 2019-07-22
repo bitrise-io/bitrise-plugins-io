@@ -1,7 +1,7 @@
 package services
 
-// AppsListResponseItemModel ...
-type AppsListResponseItemModel struct {
+// AppsListItemResponseModel ...
+type AppsListItemResponseModel struct {
 	Title string `json:"title"`
 	Slug  string `json:"slug"`
 	Owner struct {
@@ -11,5 +11,5 @@ type AppsListResponseItemModel struct {
 
 // AppsListResponseModel ...
 type AppsListResponseModel struct {
-	Data []AppsListResponseItemModel `json:"data"`
+	Data []AppsListItemResponseModel `json:"data"`
 }
