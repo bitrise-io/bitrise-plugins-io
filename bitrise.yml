@@ -175,7 +175,6 @@ workflows:
     - go-test
     after_run:
     - integration-test
-    steps: []
   update_plugin_defintion:
     steps:
     - script:
