@@ -175,20 +175,7 @@ workflows:
     - go-test
     after_run:
     - integration-test
-    - create_binaries
-    - update_plugin_defintion
-    steps:
-    - script:
-        title:
-        inputs:
-        - content: |
-            #!/usr/bin/env bash
-            set -ex
-            go get -u github.com/bitrise-tools/releaseman
-            export CI=true
-            releaseman create-changelog \
-              --version "$RELEASE_VERSION" \
-              --set-version-script "bash _scripts/set_version.sh version/version.go"
+    steps: []
   update_plugin_defintion:
     steps:
     - script:
