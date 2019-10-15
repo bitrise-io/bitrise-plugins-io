@@ -6,7 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/bitrise-core/bitrise-plugins-io/configs"
+	"github.com/bitrise-io/bitrise-plugins-io/configs"
 	"github.com/bitrise-io/go-utils/log"
 	"github.com/pkg/errors"
 )

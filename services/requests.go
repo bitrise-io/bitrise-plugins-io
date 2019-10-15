@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/bitrise-core/bitrise-plugins-io/configs"
+	"github.com/bitrise-io/bitrise-plugins-io/configs"
 	"github.com/pkg/errors"
 )
 

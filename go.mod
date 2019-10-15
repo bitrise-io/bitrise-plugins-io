@@ -1,4 +1,4 @@
-module github.com/bitrise-core/bitrise-plugins-io
+module github.com/bitrise-io/bitrise-plugins-io
 
 require (
 	github.com/bitrise-io/go-utils v0.0.0-20180425140441-2d6572062046

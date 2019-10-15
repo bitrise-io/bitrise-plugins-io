@@ -126,7 +126,7 @@ workflows:
             set -x
 
             git_commit_hash="$(git rev-parse HEAD)"
-            version_package="github.com/bitrise-core/bitrise-plugins-io/version"
+            version_package="github.com/bitrise-io/bitrise-plugins-io/version"
 
             export ARCH=x86_64
             export GOARCH=amd64
@@ -169,7 +169,7 @@ workflows:
             go get github.com/bitrise-io/go-utils/fileutil
 
             go run _scripts/set_version.go \
-              --src "https://github.com/bitrise-core/bitrise-plugins-io" \
+              --src "https://github.com/bitrise-io/bitrise-plugins-io" \
               --version "$RELEASE_VERSION" \
               --osx_bin "$OSX_BIN_NAME" \
               --linux_bin "$LINUX_BIN_NAME"
