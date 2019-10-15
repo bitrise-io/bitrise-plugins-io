@@ -1,91 +1,14 @@
-format_version: 5
+format_version: "5"
 default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
-
+project_type: ""
 app:
   envs:
   - RELEASE_VERSION: 0.0.5
   - BIN_NAME: bitrise-plugins-io
-
+  - GOFLAGS: -mod=vendor
+    opts:
+      is_expand: false
 workflows:
-  # ----------------------------------------------------------------
-  # --- workflows for CI and testing
-  test:
-    before_run:
-    - go-test
-    after_run:
-    - integration-test
-    steps:
-
-  go-test:
-    steps:
-    - script:
-        title: Export go files to test
-        inputs:
-        - content: |-
-            #!/usr/bin/env bash
-            set -ex
-            no_vendor_paths="$(go list ./... | grep -v vendor)"
-            envman add --key GOLIST_WITHOUT_VENDOR --value "$no_vendor_paths"
-    - script:
-        title: Err check
-        inputs:
-        - content: |-
-            #!/usr/bin/env bash
-            set -ex
-            go get -u github.com/kisielk/errcheck
-            errcheck -asserts=true -blank=true $GOLIST_WITHOUT_VENDOR
-    - script:
-        title: Go lint
-        inputs:
-        - content: |-
-            #!/usr/bin/env bash
-            set -ex
-            go get -u golang.org/x/lint/golint
-            while read -r line; do
-              echo "-> Linting: $line"
-              golint_out="$(golint $line)"
-              if [[ "${golint_out}" != "" ]] ; then
-                echo "=> Golint issues found:"
-                echo "${golint_out}"
-                exit 1
-              fi
-            done <<< "$GOLIST_WITHOUT_VENDOR"
-    - script:
-        title: Go test
-        inputs:
-        - content: |-
-            #!/usr/bin/env bash
-            set -ex
-            go test $(go list ./... | grep -v vendor)
-
-  integration-test:
-    steps:
-    - script:
-        title: Go build
-        inputs:
-        - content: |-
-            #!/usr/bin/env bash
-            set -ex
-
-            # build the new bitrise-plugins-io
-            current_dir=$(pwd)
-            current_bin=$current_dir/_tmp/${BIN_NAME}
-            go build -o $current_bin
-
-            envman add --key CURRENT_BIN --value $current_bin
-    - script:
-        title: Run integration tests
-        inputs:
-        - content: |-
-            #!/usr/bin/env bash
-            echo "Running integration tests ..."
-            set -ex
-
-            export INTEGRATION_TEST_BINARY_PATH="$CURRENT_BIN"
-            go test -v -tags=integration ./integrationtests/...
-
-  # ----------------------------------------------------------------
-  # --- workflows for Releasing
   create-release:
     title: Create release with Releaseman
     before_run:
@@ -95,7 +18,6 @@ workflows:
     - update_plugin_defintion
     steps:
     - script:
-        title:
         inputs:
         - content: |
             #!/usr/bin/env bash
@@ -105,11 +27,10 @@ workflows:
             releaseman create-changelog \
               --version "$RELEASE_VERSION" \
               --set-version-script "bash _scripts/set_version.sh version/version.go"
-
   create_binaries:
     title: Create binaries
     description: |
-        Creates Linux and Darwin binaries
+      Creates Linux and Darwin binaries
     steps:
     - script:
         title: create Linux and macOS (Darwin) bins, with version infos
@@ -156,7 +77,104 @@ workflows:
 
             cp "${binary_path}" "${BITRISE_DEPLOY_DIR}/${BIN_NAME}-${OS}-${ARCH}"
             envman add --key LINUX_BIN_NAME --value "${BIN_NAME}-${OS}-${ARCH}"
+  dep-update:
+    title: Dep update
+    description: |
+      Used for updating bitrise dependencies with dep
+    steps:
+    - script:
+        title: Dependency update
+        inputs:
+        - content: |-
+            #!/usr/bin/env bash
+            set -ex
 
+            rm -rf ./vendor
+            rm -f go.mod go.sum
+
+            go mod init
+            go mod tidy
+            go mod vendor
+  go-test:
+    steps:
+    - script:
+        title: Export go files to test
+        inputs:
+        - content: |-
+            #!/usr/bin/env bash
+            set -ex
+            no_vendor_paths="$(go list ./... | grep -v vendor)"
+            envman add --key GOLIST_WITHOUT_VENDOR --value "$no_vendor_paths"
+    - script:
+        title: Err check
+        inputs:
+        - content: |-
+            #!/usr/bin/env bash
+            set -ex
+
+            cd /tmp
+            go get -u github.com/kisielk/errcheck
+            cd -
+
+            errcheck -asserts=true -blank=true $GOLIST_WITHOUT_VENDOR
+    - script:
+        title: Go lint
+        inputs:
+        - content: |-
+            #!/usr/bin/env bash
+            set -ex
+
+            cd /tmp
+            go get -u golang.org/x/lint/golint
+            cd -
+
+            while read -r line; do
+              echo "-> Linting: $line"
+              golint_out="$(golint $line)"
+              if [[ "${golint_out}" != "" ]] ; then
+                echo "=> Golint issues found:"
+                echo "${golint_out}"
+                exit 1
+              fi
+            done <<< "$GOLIST_WITHOUT_VENDOR"
+    - script:
+        title: Go test
+        inputs:
+        - content: |-
+            #!/usr/bin/env bash
+            set -ex
+
+            go test $(go list ./... | grep -v vendor)
+  integration-test:
+    steps:
+    - script:
+        title: Go build
+        inputs:
+        - content: |-
+            #!/usr/bin/env bash
+            set -ex
+
+            # build the new bitrise-plugins-io
+            current_dir=$(pwd)
+            current_bin=$current_dir/_tmp/${BIN_NAME}
+            go build -o $current_bin
+
+            envman add --key CURRENT_BIN --value $current_bin
+    - script:
+        title: Run integration tests
+        inputs:
+        - content: |-
+            #!/usr/bin/env bash
+            echo "Running integration tests ..."
+            set -ex
+
+            export INTEGRATION_TEST_BINARY_PATH="$CURRENT_BIN"
+            go test -v -tags=integration ./integrationtests/...
+  test:
+    before_run:
+    - go-test
+    after_run:
+    - integration-test
   update_plugin_defintion:
     steps:
     - script:
@@ -173,20 +191,3 @@ workflows:
               --version "$RELEASE_VERSION" \
               --osx_bin "$OSX_BIN_NAME" \
               --linux_bin "$LINUX_BIN_NAME"
-
-  # ----------------------------------------------------------------
-  # --- workflows for Utility
-  dep-update:
-    title: Dep update
-    description: |
-      Used for updating bitrise dependencies with dep
-    steps:
-    - script:
-        title: Dependency update
-        inputs:
-        - content: |-
-            #!/usr/bin/env bash
-            set -ex
-            go get -u -v github.com/golang/dep/cmd/dep
-            dep ensure -v
-            dep ensure -v -update
