@@ -116,9 +116,9 @@ func ValidateAuthToken() (Response, error) {
 	return bitriseGetRequest("me", nil)
 }
 
-// RegisterRepository ...
-func RegisterRepository(repoURL string) (Response, error) {
-	return bitrisePostRequest("apps/register", map[string]interface{}{"repo_url": repoURL})
+// RegisterApp ...
+func RegisterApp(params map[string]interface{}) (Response, error) {
+	return bitrisePostRequest("apps/register", params)
 }
 
 // RegisterSSHKey ...
