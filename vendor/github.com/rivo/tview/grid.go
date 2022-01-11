@@ -3,7 +3,7 @@ package tview
 import (
 	"math"
 
-	"github.com/gdamore/tcell/v2"
+	"github.com/gdamore/tcell"
 )
 
 // gridItem represents one primitive and its possible position on a grid.
@@ -60,18 +60,18 @@ type Grid struct {
 
 // NewGrid returns a new grid-based layout container with no initial primitives.
 //
-// Note that Box, the superclass of Grid, will be transparent so that any grid
-// areas not covered by any primitives will leave their background unchanged. To
-// clear a Grid's background before any items are drawn, reset its Box to one
-// with the desired color:
+// Note that Box, the superclass of Grid, will have its background color set to
+// transparent so that any grid areas not covered by any primitives will leave
+// their background unchanged. To clear a Grid's background before any items are
+// drawn, set it to the desired color:
 //
-//   grid.Box = NewBox()
+//   grid.SetBackgroundColor(tview.Styles.PrimitiveBackgroundColor)
 func NewGrid() *Grid {
 	g := &Grid{
+		Box:          NewBox().SetBackgroundColor(tcell.ColorDefault),
 		bordersColor: Styles.GraphicsColor,
 	}
-	g.Box = NewBox()
-	g.Box.dontClear = true
+	g.focus = g
 	return g
 }
 
@@ -93,7 +93,7 @@ func NewGrid() *Grid {
 // following call will result in columns with widths of 30, 10, 15, 15, and 30
 // cells:
 //
-//   grid.SetColumns(30, 10, -1, -1, -2)
+//   grid.Setcolumns(30, 10, -1, -1, -2)
 //
 // If a primitive were then placed in the 6th and 7th column, the resulting
 // widths would be: 30, 10, 10, 10, 20, 10, and 10 cells.
@@ -230,7 +230,7 @@ func (g *Grid) Clear() *Grid {
 // drawing the first grid cell in the top-left corner. As the grid will never
 // completely move off the screen, these values may be adjusted the next time
 // the grid is drawn. The actual position of the grid may also be adjusted such
-// that contained primitives that have focus remain visible.
+// that contained primitives that have focus are visible.
 func (g *Grid) SetOffset(rows, columns int) *Grid {
 	g.rowOffset, g.columnOffset = rows, columns
 	return g
@@ -250,36 +250,27 @@ func (g *Grid) Focus(delegate func(p Primitive)) {
 			return
 		}
 	}
-	g.Box.Focus(delegate)
+	g.hasFocus = true
+}
+
+// Blur is called when this primitive loses focus.
+func (g *Grid) Blur() {
+	g.hasFocus = false
 }
 
 // HasFocus returns whether or not this primitive has focus.
 func (g *Grid) HasFocus() bool {
 	for _, item := range g.items {
-		if item.visible && item.Item.HasFocus() {
+		if item.visible && item.Item.GetFocusable().HasFocus() {
 			return true
 		}
 	}
-	return g.Box.HasFocus()
+	return g.hasFocus
 }
 
 // InputHandler returns the handler for this primitive.
 func (g *Grid) InputHandler() func(event *tcell.EventKey, setFocus func(p Primitive)) {
 	return g.WrapInputHandler(func(event *tcell.EventKey, setFocus func(p Primitive)) {
-		if !g.hasFocus {
-			// Pass event on to child primitive.
-			for _, item := range g.items {
-				if item != nil && item.Item.HasFocus() {
-					if handler := item.Item.InputHandler(); handler != nil {
-						handler(event, setFocus)
-						return
-					}
-				}
-			}
-			return
-		}
-
-		// Process our own key events if we have direct focus.
 		switch event.Key() {
 		case tcell.KeyRune:
 			switch event.Rune() {
@@ -314,7 +305,7 @@ func (g *Grid) InputHandler() func(event *tcell.EventKey, setFocus func(p Primit
 
 // Draw draws this primitive onto the screen.
 func (g *Grid) Draw(screen tcell.Screen) {
-	g.Box.DrawForSubclass(screen, g)
+	g.Box.Draw(screen)
 	x, y, width, height := g.GetInnerRect()
 	screenWidth, screenHeight := screen.Size()
 
@@ -401,12 +392,18 @@ func (g *Grid) Draw(screen tcell.Screen) {
 	}
 
 	// Distribute proportional rows/columns.
+	gridWidth := 0
+	gridHeight := 0
 	for index := 0; index < rows; index++ {
 		row := 0
 		if index < len(g.rows) {
 			row = g.rows[index]
 		}
 		if row > 0 {
+			if row < g.minHeight {
+				row = g.minHeight
+			}
+			gridHeight += row
 			continue // Not proportional. We already know the width.
 		} else if row == 0 {
 			row = 1
@@ -420,6 +417,7 @@ func (g *Grid) Draw(screen tcell.Screen) {
 			rowAbs = g.minHeight
 		}
 		rowHeight[index] = rowAbs
+		gridHeight += rowAbs
 	}
 	for index := 0; index < columns; index++ {
 		column := 0
@@ -427,6 +425,10 @@ func (g *Grid) Draw(screen tcell.Screen) {
 			column = g.columns[index]
 		}
 		if column > 0 {
+			if column < g.minWidth {
+				column = g.minWidth
+			}
+			gridWidth += column
 			continue // Not proportional. We already know the height.
 		} else if column == 0 {
 			column = 1
@@ -440,10 +442,18 @@ func (g *Grid) Draw(screen tcell.Screen) {
 			columnAbs = g.minWidth
 		}
 		columnWidth[index] = columnAbs
+		gridWidth += columnAbs
+	}
+	if g.borders {
+		gridHeight += rows + 1
+		gridWidth += columns + 1
+	} else {
+		gridHeight += (rows - 1) * g.gapRows
+		gridWidth += (columns - 1) * g.gapColumns
 	}
 
 	// Calculate row/column positions.
-	var columnX, rowY int
+	columnX, rowY := x, y
 	if g.borders {
 		columnX++
 		rowY++
@@ -486,97 +496,59 @@ func (g *Grid) Draw(screen tcell.Screen) {
 		}
 		item.x, item.y, item.w, item.h = px, py, pw, ph
 		item.visible = true
-		if primitive.HasFocus() {
+		if primitive.GetFocusable().HasFocus() {
 			focus = item
 		}
 	}
 
 	// Calculate screen offsets.
-	var offsetX, offsetY int
-	add := 1
-	if !g.borders {
-		add = g.gapRows
+	var offsetX, offsetY, add int
+	if g.rowOffset < 0 {
+		g.rowOffset = 0
 	}
-	for index, height := range rowHeight {
-		if index >= g.rowOffset {
-			break
-		}
-		offsetY += height + add
+	if g.columnOffset < 0 {
+		g.columnOffset = 0
 	}
-	if !g.borders {
-		add = g.gapColumns
-	}
-	for index, width := range columnWidth {
-		if index >= g.columnOffset {
-			break
-		}
-		offsetX += width + add
-	}
-
-	// Line up the last row/column with the end of the available area.
-	var border int
 	if g.borders {
-		border = 1
+		add = 1
 	}
-	last := len(rowPos) - 1
-	if rowPos[last]+rowHeight[last]+border-offsetY < height {
-		offsetY = rowPos[last] - height + rowHeight[last] + border
-	}
-	last = len(columnPos) - 1
-	if columnPos[last]+columnWidth[last]+border-offsetX < width {
-		offsetX = columnPos[last] - width + columnWidth[last] + border
-	}
-
-	// The focused item must be within the visible area.
-	if focus != nil {
-		if focus.y+focus.h-offsetY >= height {
-			offsetY = focus.y - height + focus.h
+	for row := 0; row < rows-1; row++ {
+		remainingHeight := gridHeight - offsetY
+		if focus != nil && focus.y-add <= offsetY || // Don't let the focused item move out of screen.
+			row >= g.rowOffset && (focus == nil || focus != nil && focus.y-offsetY < height) || // We've reached the requested offset.
+			remainingHeight <= height { // We have enough space to show the rest.
+			if row > 0 {
+				if focus != nil && focus.y+focus.h+add-offsetY > height {
+					offsetY += focus.y + focus.h + add - offsetY - height
+				}
+				if remainingHeight < height {
+					offsetY = gridHeight - height
+				}
+			}
+			g.rowOffset = row
+			break
 		}
-		if focus.y-offsetY < 0 {
-			offsetY = focus.y
-		}
-		if focus.x+focus.w-offsetX >= width {
-			offsetX = focus.x - width + focus.w
-		}
-		if focus.x-offsetX < 0 {
-			offsetX = focus.x
-		}
+		offsetY = rowPos[row+1] - add
 	}
-
-	// Adjust row/column offsets based on this value.
-	var from, to int
-	for index, pos := range rowPos {
-		if pos-offsetY < 0 {
-			from = index + 1
+	for column := 0; column < columns-1; column++ {
+		remainingWidth := gridWidth - offsetX
+		if focus != nil && focus.x-add <= offsetX || // Don't let the focused item move out of screen.
+			column >= g.columnOffset && (focus == nil || focus != nil && focus.x-offsetX < width) || // We've reached the requested offset.
+			remainingWidth <= width { // We have enough space to show the rest.
+			if column > 0 {
+				if focus != nil && focus.x+focus.w+add-offsetX > width {
+					offsetX += focus.x + focus.w + add - offsetX - width
+				} else if remainingWidth < width {
+					offsetX = gridWidth - width
+				}
+			}
+			g.columnOffset = column
+			break
 		}
-		if pos-offsetY < height {
-			to = index
-		}
-	}
-	if g.rowOffset < from {
-		g.rowOffset = from
-	}
-	if g.rowOffset > to {
-		g.rowOffset = to
-	}
-	from, to = 0, 0
-	for index, pos := range columnPos {
-		if pos-offsetX < 0 {
-			from = index + 1
-		}
-		if pos-offsetX < width {
-			to = index
-		}
-	}
-	if g.columnOffset < from {
-		g.columnOffset = from
-	}
-	if g.columnOffset > to {
-		g.columnOffset = to
+		offsetX = columnPos[column+1] - add
 	}
 
 	// Draw primitives and borders.
-	borderStyle := tcell.StyleDefault.Background(g.backgroundColor).Foreground(g.bordersColor)
 	for primitive, item := range items {
 		// Final primitive position.
 		if !item.visible {
@@ -584,14 +556,10 @@ func (g *Grid) Draw(screen tcell.Screen) {
 		}
 		item.x -= offsetX
 		item.y -= offsetY
-		if item.x >= width || item.x+item.w <= 0 || item.y >= height || item.y+item.h <= 0 {
-			item.visible = false
-			continue
-		}
-		if item.x+item.w > width {
+		if item.x+item.w > x+width {
 			item.w = width - item.x
 		}
-		if item.y+item.h > height {
+		if item.y+item.h > y+height {
 			item.h = height - item.y
 		}
 		if item.x < 0 {
@@ -606,8 +574,6 @@ func (g *Grid) Draw(screen tcell.Screen) {
 			item.visible = false
 			continue
 		}
-		item.x += x
-		item.y += y
 		primitive.SetRect(item.x, item.y, item.w, item.h)
 
 		// Draw primitive.
@@ -625,11 +591,11 @@ func (g *Grid) Draw(screen tcell.Screen) {
 				}
 				by := item.y - 1
 				if by >= 0 && by < screenHeight {
-					PrintJoinedSemigraphics(screen, bx, by, Borders.Horizontal, borderStyle)
+					PrintJoinedSemigraphics(screen, bx, by, Borders.Horizontal, g.bordersColor)
 				}
 				by = item.y + item.h
 				if by >= 0 && by < screenHeight {
-					PrintJoinedSemigraphics(screen, bx, by, Borders.Horizontal, borderStyle)
+					PrintJoinedSemigraphics(screen, bx, by, Borders.Horizontal, g.bordersColor)
 				}
 			}
 			for by := item.y; by < item.y+item.h; by++ { // Left/right lines.
@@ -638,51 +604,29 @@ func (g *Grid) Draw(screen tcell.Screen) {
 				}
 				bx := item.x - 1
 				if bx >= 0 && bx < screenWidth {
-					PrintJoinedSemigraphics(screen, bx, by, Borders.Vertical, borderStyle)
+					PrintJoinedSemigraphics(screen, bx, by, Borders.Vertical, g.bordersColor)
 				}
 				bx = item.x + item.w
 				if bx >= 0 && bx < screenWidth {
-					PrintJoinedSemigraphics(screen, bx, by, Borders.Vertical, borderStyle)
+					PrintJoinedSemigraphics(screen, bx, by, Borders.Vertical, g.bordersColor)
 				}
 			}
 			bx, by := item.x-1, item.y-1 // Top-left corner.
 			if bx >= 0 && bx < screenWidth && by >= 0 && by < screenHeight {
-				PrintJoinedSemigraphics(screen, bx, by, Borders.TopLeft, borderStyle)
+				PrintJoinedSemigraphics(screen, bx, by, Borders.TopLeft, g.bordersColor)
 			}
 			bx, by = item.x+item.w, item.y-1 // Top-right corner.
 			if bx >= 0 && bx < screenWidth && by >= 0 && by < screenHeight {
-				PrintJoinedSemigraphics(screen, bx, by, Borders.TopRight, borderStyle)
+				PrintJoinedSemigraphics(screen, bx, by, Borders.TopRight, g.bordersColor)
 			}
 			bx, by = item.x-1, item.y+item.h // Bottom-left corner.
 			if bx >= 0 && bx < screenWidth && by >= 0 && by < screenHeight {
-				PrintJoinedSemigraphics(screen, bx, by, Borders.BottomLeft, borderStyle)
+				PrintJoinedSemigraphics(screen, bx, by, Borders.BottomLeft, g.bordersColor)
 			}
 			bx, by = item.x+item.w, item.y+item.h // Bottom-right corner.
 			if bx >= 0 && bx < screenWidth && by >= 0 && by < screenHeight {
-				PrintJoinedSemigraphics(screen, bx, by, Borders.BottomRight, borderStyle)
+				PrintJoinedSemigraphics(screen, bx, by, Borders.BottomRight, g.bordersColor)
 			}
 		}
 	}
-}
-
-// MouseHandler returns the mouse handler for this primitive.
-func (g *Grid) MouseHandler() func(action MouseAction, event *tcell.EventMouse, setFocus func(p Primitive)) (consumed bool, capture Primitive) {
-	return g.WrapMouseHandler(func(action MouseAction, event *tcell.EventMouse, setFocus func(p Primitive)) (consumed bool, capture Primitive) {
-		if !g.InRect(event.Position()) {
-			return false, nil
-		}
-
-		// Pass mouse events along to the first child item that takes it.
-		for _, item := range g.items {
-			if item.Item == nil {
-				continue
-			}
-			consumed, capture = item.Item.MouseHandler()(action, event, setFocus)
-			if consumed {
-				return
-			}
-		}
-
-		return
-	})
 }

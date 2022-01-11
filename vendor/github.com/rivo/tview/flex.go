@@ -1,15 +1,13 @@
 package tview
 
 import (
-	"github.com/gdamore/tcell/v2"
+	"github.com/gdamore/tcell"
 )
 
 // Configuration values.
 const (
-	FlexRow       = 0 // One item per row.
-	FlexColumn    = 1 // One item per column.
-	FlexRowCSS    = 1 // As defined in CSS, items distributed along a row.
-	FlexColumnCSS = 0 // As defined in CSS, items distributed within a column.
+	FlexRow = iota
+	FlexColumn
 )
 
 // flexItem holds layout options for one item.
@@ -44,25 +42,23 @@ type Flex struct {
 // direction set to FlexColumn. To add primitives to this layout, see AddItem().
 // To change the direction, see SetDirection().
 //
-// Note that Box, the superclass of Flex, will not clear its contents so that
-// any nil flex items will leave their background unchanged. To clear a Flex's
-// background before any items are drawn, set it to a box with the desired
-// color:
+// Note that Box, the superclass of Flex, will have its background color set to
+// transparent so that any nil flex items will leave their background unchanged.
+// To clear a Flex's background before any items are drawn, set it to the
+// desired color:
 //
-//   flex.Box = NewBox()
+//   flex.SetBackgroundColor(tview.Styles.PrimitiveBackgroundColor)
 func NewFlex() *Flex {
 	f := &Flex{
+		Box:       NewBox().SetBackgroundColor(tcell.ColorDefault),
 		direction: FlexColumn,
 	}
-	f.Box = NewBox()
-	f.Box.dontClear = true
+	f.focus = f
 	return f
 }
 
 // SetDirection sets the direction in which the contained primitives are
-// distributed. This can be either FlexColumn (default) or FlexRow. Note that
-// these are the opposite of what you would expect coming from CSS. You may also
-// use FlexColumnCSS or FlexRowCSS, to remain in line with the CSS definition.
+// distributed. This can be either FlexColumn (default) or FlexRow.
 func (f *Flex) SetDirection(direction int) *Flex {
 	f.direction = direction
 	return f
@@ -105,25 +101,6 @@ func (f *Flex) RemoveItem(p Primitive) *Flex {
 	return f
 }
 
-// GetItemCount returns the number of items in this container.
-func (f *Flex) GetItemCount() int {
-	return len(f.items)
-}
-
-// GetItem returns the primitive at the given index, starting with 0 for the
-// first primitive in this container.
-//
-// This function will panic for out of range indices.
-func (f *Flex) GetItem(index int) Primitive {
-	return f.items[index].Item
-}
-
-// Clear removes all items from the container.
-func (f *Flex) Clear() *Flex {
-	f.items = nil
-	return f
-}
-
 // ResizeItem sets a new size for the item(s) with the given primitive. If there
 // are multiple Flex items with the same primitive, they will all receive the
 // same size. For details regarding the size parameters, see AddItem().
@@ -139,7 +116,7 @@ func (f *Flex) ResizeItem(p Primitive, fixedSize, proportion int) *Flex {
 
 // Draw draws this primitive onto the screen.
 func (f *Flex) Draw(screen tcell.Screen) {
-	f.Box.DrawForSubclass(screen, f)
+	f.Box.Draw(screen)
 
 	// Calculate size and position of the items.
 
@@ -172,13 +149,9 @@ func (f *Flex) Draw(screen tcell.Screen) {
 	for _, item := range f.items {
 		size := item.FixedSize
 		if size <= 0 {
-			if proportionSum > 0 {
-				size = distSize * item.Proportion / proportionSum
-				distSize -= size
-				proportionSum -= item.Proportion
-			} else {
-				size = 0
-			}
+			size = distSize * item.Proportion / proportionSum
+			distSize -= size
+			proportionSum -= item.Proportion
 		}
 		if item.Item != nil {
 			if f.direction == FlexColumn {
@@ -190,7 +163,7 @@ func (f *Flex) Draw(screen tcell.Screen) {
 		pos += size
 
 		if item.Item != nil {
-			if item.Item.HasFocus() {
+			if item.Item.GetFocusable().HasFocus() {
 				defer item.Item.Draw(screen)
 			} else {
 				item.Item.Draw(screen)
@@ -207,51 +180,14 @@ func (f *Flex) Focus(delegate func(p Primitive)) {
 			return
 		}
 	}
-	f.Box.Focus(delegate)
 }
 
 // HasFocus returns whether or not this primitive has focus.
 func (f *Flex) HasFocus() bool {
 	for _, item := range f.items {
-		if item.Item != nil && item.Item.HasFocus() {
+		if item.Item != nil && item.Item.GetFocusable().HasFocus() {
 			return true
 		}
 	}
-	return f.Box.HasFocus()
-}
-
-// MouseHandler returns the mouse handler for this primitive.
-func (f *Flex) MouseHandler() func(action MouseAction, event *tcell.EventMouse, setFocus func(p Primitive)) (consumed bool, capture Primitive) {
-	return f.WrapMouseHandler(func(action MouseAction, event *tcell.EventMouse, setFocus func(p Primitive)) (consumed bool, capture Primitive) {
-		if !f.InRect(event.Position()) {
-			return false, nil
-		}
-
-		// Pass mouse events along to the first child item that takes it.
-		for _, item := range f.items {
-			if item.Item == nil {
-				continue
-			}
-			consumed, capture = item.Item.MouseHandler()(action, event, setFocus)
-			if consumed {
-				return
-			}
-		}
-
-		return
-	})
-}
-
-// InputHandler returns the handler for this primitive.
-func (f *Flex) InputHandler() func(event *tcell.EventKey, setFocus func(p Primitive)) {
-	return f.WrapInputHandler(func(event *tcell.EventKey, setFocus func(p Primitive)) {
-		for _, item := range f.items {
-			if item.Item != nil && item.Item.HasFocus() {
-				if handler := item.Item.InputHandler(); handler != nil {
-					handler(event, setFocus)
-					return
-				}
-			}
-		}
-	})
+	return false
 }

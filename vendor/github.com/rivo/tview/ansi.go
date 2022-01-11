@@ -24,7 +24,6 @@ type ansi struct {
 	// Reusable buffers.
 	buffer                        *bytes.Buffer // The entire output text of one Write().
 	csiParameter, csiIntermediate *bytes.Buffer // Partial CSI strings.
-	attributes                    string        // The buffer's current text attributes (a tview attribute string).
 
 	// The current state of the parser. One of the ansi constants.
 	state int
@@ -90,97 +89,80 @@ func (a *ansi) Write(text []byte) (int, error) {
 					}
 					fmt.Fprint(a.buffer, strings.Repeat("\n", count))
 				case 'm': // Select Graphic Rendition.
-					var background, foreground string
-					params := a.csiParameter.String()
-					fields := strings.Split(params, ";")
-					if len(params) == 0 || len(fields) == 1 && fields[0] == "0" {
+					var (
+						background, foreground, attributes string
+						clearAttributes                    bool
+					)
+					fields := strings.Split(a.csiParameter.String(), ";")
+					if len(fields) == 0 || len(fields) == 1 && fields[0] == "0" {
 						// Reset.
-						a.attributes = ""
 						if _, err := a.buffer.WriteString("[-:-:-]"); err != nil {
 							return 0, err
 						}
 						break
 					}
-					lookupColor := func(colorNumber int) string {
-						if colorNumber < 0 || colorNumber > 15 {
+					lookupColor := func(colorNumber int, bright bool) string {
+						if colorNumber < 0 || colorNumber > 7 {
 							return "black"
 						}
-						return []string{
+						if bright {
+							colorNumber += 8
+						}
+						return [...]string{
 							"black",
-							"maroon",
-							"green",
-							"olive",
-							"navy",
-							"purple",
-							"teal",
-							"silver",
-							"gray",
 							"red",
-							"lime",
+							"green",
 							"yellow",
 							"blue",
-							"fuchsia",
-							"aqua",
+							"darkmagenta",
+							"darkcyan",
 							"white",
+							"#7f7f7f",
+							"#ff0000",
+							"#00ff00",
+							"#ffff00",
+							"#5c5cff",
+							"#ff00ff",
+							"#00ffff",
+							"#ffffff",
 						}[colorNumber]
 					}
 				FieldLoop:
 					for index, field := range fields {
 						switch field {
 						case "1", "01":
-							if !strings.ContainsRune(a.attributes, 'b') {
-								a.attributes += "b"
-							}
+							attributes += "b"
 						case "2", "02":
-							if !strings.ContainsRune(a.attributes, 'd') {
-								a.attributes += "d"
-							}
+							attributes += "d"
 						case "4", "04":
-							if !strings.ContainsRune(a.attributes, 'u') {
-								a.attributes += "u"
-							}
+							attributes += "u"
 						case "5", "05":
-							if !strings.ContainsRune(a.attributes, 'l') {
-								a.attributes += "l"
-							}
-						case "22":
-							if i := strings.IndexRune(a.attributes, 'b'); i >= 0 {
-								a.attributes = a.attributes[:i] + a.attributes[i+1:]
-							}
-							if i := strings.IndexRune(a.attributes, 'd'); i >= 0 {
-								a.attributes = a.attributes[:i] + a.attributes[i+1:]
-							}
-						case "24":
-							if i := strings.IndexRune(a.attributes, 'u'); i >= 0 {
-								a.attributes = a.attributes[:i] + a.attributes[i+1:]
-							}
-						case "25":
-							if i := strings.IndexRune(a.attributes, 'l'); i >= 0 {
-								a.attributes = a.attributes[:i] + a.attributes[i+1:]
-							}
+							attributes += "l"
+						case "7", "07":
+							attributes += "7"
+						case "22", "24", "25", "27":
+							clearAttributes = true
 						case "30", "31", "32", "33", "34", "35", "36", "37":
 							colorNumber, _ := strconv.Atoi(field)
-							foreground = lookupColor(colorNumber - 30)
-						case "39":
-							foreground = "-"
+							foreground = lookupColor(colorNumber-30, false)
 						case "40", "41", "42", "43", "44", "45", "46", "47":
 							colorNumber, _ := strconv.Atoi(field)
-							background = lookupColor(colorNumber - 40)
-						case "49":
-							background = "-"
+							background = lookupColor(colorNumber-40, false)
 						case "90", "91", "92", "93", "94", "95", "96", "97":
 							colorNumber, _ := strconv.Atoi(field)
-							foreground = lookupColor(colorNumber - 82)
+							foreground = lookupColor(colorNumber-90, true)
 						case "100", "101", "102", "103", "104", "105", "106", "107":
 							colorNumber, _ := strconv.Atoi(field)
-							background = lookupColor(colorNumber - 92)
+							background = lookupColor(colorNumber-100, true)
 						case "38", "48":
 							var color string
 							if len(fields) > index+1 {
 								if fields[index+1] == "5" && len(fields) > index+2 { // 8-bit colors.
 									colorNumber, _ := strconv.Atoi(fields[index+2])
-									if colorNumber <= 15 {
-										color = lookupColor(colorNumber)
+									if colorNumber <= 7 {
+										color = lookupColor(colorNumber, false)
+									} else if colorNumber <= 15 {
+										color = lookupColor(colorNumber, true)
 									} else if colorNumber <= 231 {
 										red := (colorNumber - 16) / 36
 										green := ((colorNumber - 16) / 6) % 6
@@ -207,12 +189,11 @@ func (a *ansi) Write(text []byte) (int, error) {
 							break FieldLoop
 						}
 					}
-					var colon string
-					if len(a.attributes) > 0 {
-						colon = ":"
+					if len(attributes) > 0 || clearAttributes {
+						attributes = ":" + attributes
 					}
-					if len(foreground) > 0 || len(background) > 0 || len(a.attributes) > 0 {
-						fmt.Fprintf(a.buffer, "[%s:%s%s%s]", foreground, background, colon, a.attributes)
+					if len(foreground) > 0 || len(background) > 0 || len(attributes) > 0 {
+						fmt.Fprintf(a.buffer, "[%s:%s%s]", foreground, background, attributes)
 					}
 				}
 				a.state = ansiText

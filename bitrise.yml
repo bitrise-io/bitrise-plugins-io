@@ -92,7 +92,7 @@ workflows:
             rm -rf ./vendor
             rm -f go.mod go.sum
 
-            go mod init github.com/bitrise-io/bitrise-plugins-io
+            go mod init
             go mod tidy
             go mod vendor
   go-test:
