@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/gdamore/tcell"
+	"github.com/gdamore/tcell/v2"
 )
 
 // listItem represents one item in a List.
@@ -51,8 +51,21 @@ type List struct {
 	// If true, the entire row is highlighted when selected.
 	highlightFullLine bool
 
-	// The number of list items skipped at the top before the first item is drawn.
-	offset int
+	// Whether or not navigating the list will wrap around.
+	wrapAround bool
+
+	// The number of list items skipped at the top before the first item is
+	// drawn.
+	itemOffset int
+
+	// The number of cells skipped on the left side of an item text. Shortcuts
+	// are not affected.
+	horizontalOffset int
+
+	// Set to true if a currently visible item flows over the right border of
+	// the box. This is set by the Draw() function. It determines the behaviour
+	// of the right arrow key.
+	overflowing bool
 
 	// An optional function which is called when the user has navigated to a list
 	// item.
@@ -71,6 +84,7 @@ func NewList() *List {
 	return &List{
 		Box:                     NewBox(),
 		showSecondaryText:       true,
+		wrapAround:              true,
 		mainTextColor:           Styles.PrimaryTextColor,
 		secondaryTextColor:      Styles.TertiaryTextColor,
 		shortcutColor:           Styles.SecondaryTextColor,
@@ -110,6 +124,27 @@ func (l *List) SetCurrentItem(index int) *List {
 // starting at 0 for the first item.
 func (l *List) GetCurrentItem() int {
 	return l.currentItem
+}
+
+// SetOffset sets the number of items to be skipped (vertically) as well as the
+// number of cells skipped horizontally when the list is drawn. Note that one
+// item corresponds to two rows when there are secondary texts. Shortcuts are
+// always drawn.
+//
+// These values may change when the list is drawn to ensure the currently
+// selected item is visible and item texts move out of view. Users can also
+// modify these values by interacting with the list.
+func (l *List) SetOffset(items, horizontal int) *List {
+	l.itemOffset = items
+	l.horizontalOffset = horizontal
+	return l
+}
+
+// GetOffset returns the number of items skipped while drawing, as well as the
+// number of cells item text is moved to the left. See also SetOffset() for more
+// information on these values.
+func (l *List) GetOffset() (int, int) {
+	return l.itemOffset, l.horizontalOffset
 }
 
 // RemoveItem removes the item with the given index (starting at 0) from the
@@ -209,6 +244,16 @@ func (l *List) SetHighlightFullLine(highlight bool) *List {
 // ShowSecondaryText determines whether or not to show secondary item texts.
 func (l *List) ShowSecondaryText(show bool) *List {
 	l.showSecondaryText = show
+	return l
+}
+
+// SetWrapAround sets the flag that determines whether navigating the list will
+// wrap around. That is, navigating downwards on the last item will move the
+// selection to the first item (similarly in the other direction). If set to
+// false, the selection won't change when navigating downwards on the last item
+// or navigating upwards on the first item.
+func (l *List) SetWrapAround(wrapAround bool) *List {
+	l.wrapAround = wrapAround
 	return l
 }
 
@@ -375,11 +420,15 @@ func (l *List) Clear() *List {
 
 // Draw draws this primitive onto the screen.
 func (l *List) Draw(screen tcell.Screen) {
-	l.Box.Draw(screen)
+	l.Box.DrawForSubclass(screen, l)
 
 	// Determine the dimensions.
 	x, y, width, height := l.GetInnerRect()
 	bottomLimit := y + height
+	_, totalHeight := screen.Size()
+	if bottomLimit > totalHeight {
+		bottomLimit = totalHeight
+	}
 
 	// Do we show any shortcuts?
 	var showShortcuts bool
@@ -393,21 +442,28 @@ func (l *List) Draw(screen tcell.Screen) {
 	}
 
 	// Adjust offset to keep the current selection in view.
-	if l.currentItem < l.offset {
-		l.offset = l.currentItem
+	if l.currentItem < l.itemOffset {
+		l.itemOffset = l.currentItem
 	} else if l.showSecondaryText {
-		if 2*(l.currentItem-l.offset) >= height-1 {
-			l.offset = (2*l.currentItem + 3 - height) / 2
+		if 2*(l.currentItem-l.itemOffset) >= height-1 {
+			l.itemOffset = (2*l.currentItem + 3 - height) / 2
 		}
 	} else {
-		if l.currentItem-l.offset >= height {
-			l.offset = l.currentItem + 1 - height
+		if l.currentItem-l.itemOffset >= height {
+			l.itemOffset = l.currentItem + 1 - height
 		}
+	}
+	if l.horizontalOffset < 0 {
+		l.horizontalOffset = 0
 	}
 
 	// Draw the list items.
+	var (
+		maxWidth    int  // The maximum printed item width.
+		overflowing bool // Whether a text's end exceeds the right border.
+	)
 	for index, item := range l.items {
-		if index < l.offset {
+		if index < l.itemOffset {
 			continue
 		}
 
@@ -421,7 +477,13 @@ func (l *List) Draw(screen tcell.Screen) {
 		}
 
 		// Main text.
-		Print(screen, item.MainText, x, y, width, AlignLeft, l.mainTextColor)
+		_, printedWidth, _, end := printWithStyle(screen, item.MainText, x, y, l.horizontalOffset, width, AlignLeft, tcell.StyleDefault.Foreground(l.mainTextColor), true)
+		if printedWidth > maxWidth {
+			maxWidth = printedWidth
+		}
+		if end < len(item.MainText) {
+			overflowing = true
+		}
 
 		// Background color of selected text.
 		if index == l.currentItem && (!l.selectedFocusOnly || l.HasFocus()) {
@@ -451,30 +513,74 @@ func (l *List) Draw(screen tcell.Screen) {
 
 		// Secondary text.
 		if l.showSecondaryText {
-			Print(screen, item.SecondaryText, x, y, width, AlignLeft, l.secondaryTextColor)
+			_, printedWidth, _, end := printWithStyle(screen, item.SecondaryText, x, y, l.horizontalOffset, width, AlignLeft, tcell.StyleDefault.Foreground(l.secondaryTextColor), true)
+			if printedWidth > maxWidth {
+				maxWidth = printedWidth
+			}
+			if end < len(item.SecondaryText) {
+				overflowing = true
+			}
 			y++
 		}
 	}
+
+	// We don't want the item text to get out of view. If the horizontal offset
+	// is too high, we reset it and redraw. (That should be about as efficient
+	// as calculating everything up front.)
+	if l.horizontalOffset > 0 && maxWidth < width {
+		l.horizontalOffset -= width - maxWidth
+		l.Draw(screen)
+	}
+	l.overflowing = overflowing
 }
 
 // InputHandler returns the handler for this primitive.
 func (l *List) InputHandler() func(event *tcell.EventKey, setFocus func(p Primitive)) {
 	return l.WrapInputHandler(func(event *tcell.EventKey, setFocus func(p Primitive)) {
+		if event.Key() == tcell.KeyEscape {
+			if l.done != nil {
+				l.done()
+			}
+			return
+		} else if len(l.items) == 0 {
+			return
+		}
+
 		previousItem := l.currentItem
 
 		switch key := event.Key(); key {
-		case tcell.KeyTab, tcell.KeyDown, tcell.KeyRight:
+		case tcell.KeyTab, tcell.KeyDown:
 			l.currentItem++
-		case tcell.KeyBacktab, tcell.KeyUp, tcell.KeyLeft:
+		case tcell.KeyBacktab, tcell.KeyUp:
 			l.currentItem--
+		case tcell.KeyRight:
+			if l.overflowing {
+				l.horizontalOffset += 2 // We shift by 2 to account for two-cell characters.
+			} else {
+				l.currentItem++
+			}
+		case tcell.KeyLeft:
+			if l.horizontalOffset > 0 {
+				l.horizontalOffset -= 2
+			} else {
+				l.currentItem--
+			}
 		case tcell.KeyHome:
 			l.currentItem = 0
 		case tcell.KeyEnd:
 			l.currentItem = len(l.items) - 1
 		case tcell.KeyPgDn:
-			l.currentItem += 5
+			_, _, _, height := l.GetInnerRect()
+			l.currentItem += height
+			if l.currentItem >= len(l.items) {
+				l.currentItem = len(l.items) - 1
+			}
 		case tcell.KeyPgUp:
-			l.currentItem -= 5
+			_, _, _, height := l.GetInnerRect()
+			l.currentItem -= height
+			if l.currentItem < 0 {
+				l.currentItem = 0
+			}
 		case tcell.KeyEnter:
 			if l.currentItem >= 0 && l.currentItem < len(l.items) {
 				item := l.items[l.currentItem]
@@ -484,10 +590,6 @@ func (l *List) InputHandler() func(event *tcell.EventKey, setFocus func(p Primit
 				if l.selected != nil {
 					l.selected(l.currentItem, item.MainText, item.SecondaryText, item.Shortcut)
 				}
-			}
-		case tcell.KeyEscape:
-			if l.done != nil {
-				l.done()
 			}
 		case tcell.KeyRune:
 			ch := event.Rune()
@@ -516,14 +618,88 @@ func (l *List) InputHandler() func(event *tcell.EventKey, setFocus func(p Primit
 		}
 
 		if l.currentItem < 0 {
-			l.currentItem = len(l.items) - 1
+			if l.wrapAround {
+				l.currentItem = len(l.items) - 1
+			} else {
+				l.currentItem = 0
+			}
 		} else if l.currentItem >= len(l.items) {
-			l.currentItem = 0
+			if l.wrapAround {
+				l.currentItem = 0
+			} else {
+				l.currentItem = len(l.items) - 1
+			}
 		}
 
 		if l.currentItem != previousItem && l.currentItem < len(l.items) && l.changed != nil {
 			item := l.items[l.currentItem]
 			l.changed(l.currentItem, item.MainText, item.SecondaryText, item.Shortcut)
 		}
+	})
+}
+
+// indexAtPoint returns the index of the list item found at the given position
+// or a negative value if there is no such list item.
+func (l *List) indexAtPoint(x, y int) int {
+	rectX, rectY, width, height := l.GetInnerRect()
+	if rectX < 0 || rectX >= rectX+width || y < rectY || y >= rectY+height {
+		return -1
+	}
+
+	index := y - rectY
+	if l.showSecondaryText {
+		index /= 2
+	}
+	index += l.itemOffset
+
+	if index >= len(l.items) {
+		return -1
+	}
+	return index
+}
+
+// MouseHandler returns the mouse handler for this primitive.
+func (l *List) MouseHandler() func(action MouseAction, event *tcell.EventMouse, setFocus func(p Primitive)) (consumed bool, capture Primitive) {
+	return l.WrapMouseHandler(func(action MouseAction, event *tcell.EventMouse, setFocus func(p Primitive)) (consumed bool, capture Primitive) {
+		if !l.InRect(event.Position()) {
+			return false, nil
+		}
+
+		// Process mouse event.
+		switch action {
+		case MouseLeftClick:
+			setFocus(l)
+			index := l.indexAtPoint(event.Position())
+			if index != -1 {
+				item := l.items[index]
+				if item.Selected != nil {
+					item.Selected()
+				}
+				if l.selected != nil {
+					l.selected(index, item.MainText, item.SecondaryText, item.Shortcut)
+				}
+				if index != l.currentItem && l.changed != nil {
+					l.changed(index, item.MainText, item.SecondaryText, item.Shortcut)
+				}
+				l.currentItem = index
+			}
+			consumed = true
+		case MouseScrollUp:
+			if l.itemOffset > 0 {
+				l.itemOffset--
+			}
+			consumed = true
+		case MouseScrollDown:
+			lines := len(l.items) - l.itemOffset
+			if l.showSecondaryText {
+				lines *= 2
+			}
+			if _, _, _, height := l.GetInnerRect(); lines > height {
+				l.itemOffset++
+			}
+			consumed = true
+		}
+
+		return
 	})
 }

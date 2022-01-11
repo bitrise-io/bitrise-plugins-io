@@ -1,7 +1,7 @@
 package tview
 
 import (
-	"github.com/gdamore/tcell"
+	"github.com/gdamore/tcell/v2"
 )
 
 // DefaultFormFieldWidth is the default field screen width of form elements
@@ -59,7 +59,8 @@ type Form struct {
 	itemPadding int
 
 	// The index of the item or button which has focus. (Items are counted first,
-	// buttons are counted last.)
+	// buttons are counted last.) This is only used when the form itself receives
+	// focus so that the last element that had focus keeps it.
 	focusedElement int
 
 	// The label color.
@@ -94,8 +95,6 @@ func NewForm() *Form {
 		buttonBackgroundColor: Styles.ContrastBackgroundColor,
 		buttonTextColor:       Styles.PrimaryTextColor,
 	}
-
-	f.focus = f
 
 	return f
 }
@@ -295,9 +294,15 @@ func (f *Form) AddFormItem(item FormItem) *Form {
 	return f
 }
 
-// GetFormItem returns the form element at the given position, starting with
-// index 0. Elements are referenced in the order they were added. Buttons are
-// not included.
+// GetFormItemCount returns the number of items in the form (not including the
+// buttons).
+func (f *Form) GetFormItemCount() int {
+	return len(f.items)
+}
+
+// GetFormItem returns the form item at the given position, starting with index
+// 0. Elements are referenced in the order they were added. Buttons are not
+// included.
 func (f *Form) GetFormItem(index int) FormItem {
 	return f.items[index]
 }
@@ -334,6 +339,19 @@ func (f *Form) GetFormItemIndex(label string) int {
 	return -1
 }
 
+// GetFocusedItemIndex returns the indices of the form element or button which
+// currently has focus. If they don't, -1 is returned resepectively.
+func (f *Form) GetFocusedItemIndex() (formItem, button int) {
+	index := f.focusIndex()
+	if index < 0 {
+		return -1, -1
+	}
+	if index < len(f.items) {
+		return index, -1
+	}
+	return -1, index - len(f.items)
+}
+
 // SetCancelFunc sets a handler which is called when the user hits the Escape
 // key.
 func (f *Form) SetCancelFunc(callback func()) *Form {
@@ -343,7 +361,12 @@ func (f *Form) SetCancelFunc(callback func()) *Form {
 
 // Draw draws this primitive onto the screen.
 func (f *Form) Draw(screen tcell.Screen) {
-	f.Box.Draw(screen)
+	f.Box.DrawForSubclass(screen, f)
+
+	// Determine the actual item that has focus.
+	if index := f.focusIndex(); index >= 0 {
+		f.focusedElement = index
+	}
 
 	// Determine the dimensions.
 	x, y, width, height := f.GetInnerRect()
@@ -405,7 +428,7 @@ func (f *Form) Draw(screen tcell.Screen) {
 		positions[index].y = y
 		positions[index].width = itemWidth
 		positions[index].height = 1
-		if item.GetFocusable().HasFocus() {
+		if item.HasFocus() {
 			focusedPosition = positions[index]
 		}
 
@@ -499,7 +522,7 @@ func (f *Form) Draw(screen tcell.Screen) {
 		}
 
 		// Draw items with focus last (in case of overlaps).
-		if item.GetFocusable().HasFocus() {
+		if item.HasFocus() {
 			defer item.Draw(screen)
 		} else {
 			item.Draw(screen)
@@ -527,7 +550,7 @@ func (f *Form) Draw(screen tcell.Screen) {
 // Focus is called by the application when the primitive receives focus.
 func (f *Form) Focus(delegate func(p Primitive)) {
 	if len(f.items)+len(f.buttons) == 0 {
-		f.hasFocus = true
+		f.Box.Focus(delegate)
 		return
 	}
 	f.hasFocus = false
@@ -565,25 +588,92 @@ func (f *Form) Focus(delegate func(p Primitive)) {
 	} else {
 		// We're selecting a button.
 		button := f.buttons[f.focusedElement-len(f.items)]
-		button.SetBlurFunc(handler)
+		button.SetExitFunc(handler)
 		delegate(button)
 	}
 }
 
 // HasFocus returns whether or not this primitive has focus.
 func (f *Form) HasFocus() bool {
-	if f.hasFocus {
+	if f.focusIndex() >= 0 {
 		return true
 	}
-	for _, item := range f.items {
-		if item.GetFocusable().HasFocus() {
-			return true
+	return f.Box.HasFocus()
+}
+
+// focusIndex returns the index of the currently focused item, counting form
+// items first, then buttons. A negative value indicates that no containeed item
+// has focus.
+func (f *Form) focusIndex() int {
+	for index, item := range f.items {
+		if item.HasFocus() {
+			return index
 		}
 	}
-	for _, button := range f.buttons {
-		if button.focus.HasFocus() {
-			return true
+	for index, button := range f.buttons {
+		if button.HasFocus() {
+			return len(f.items) + index
 		}
 	}
-	return false
+	return -1
+}
+
+// MouseHandler returns the mouse handler for this primitive.
+func (f *Form) MouseHandler() func(action MouseAction, event *tcell.EventMouse, setFocus func(p Primitive)) (consumed bool, capture Primitive) {
+	return f.WrapMouseHandler(func(action MouseAction, event *tcell.EventMouse, setFocus func(p Primitive)) (consumed bool, capture Primitive) {
+		// At the end, update f.focusedElement and prepare current item/button.
+		defer func() {
+			if consumed {
+				index := f.focusIndex()
+				if index >= 0 {
+					f.focusedElement = index
+				}
+			}
+		}()
+
+		// Determine items to pass mouse events to.
+		for _, item := range f.items {
+			consumed, capture = item.MouseHandler()(action, event, setFocus)
+			if consumed {
+				return
+			}
+		}
+		for _, button := range f.buttons {
+			consumed, capture = button.MouseHandler()(action, event, setFocus)
+			if consumed {
+				return
+			}
+		}
+
+		// A mouse click anywhere else will return the focus to the last selected
+		// element.
+		if action == MouseLeftClick && f.InRect(event.Position()) {
+			consumed = true
+		}
+
+		return
+	})
+}
+
+// InputHandler returns the handler for this primitive.
+func (f *Form) InputHandler() func(event *tcell.EventKey, setFocus func(p Primitive)) {
+	return f.WrapInputHandler(func(event *tcell.EventKey, setFocus func(p Primitive)) {
+		for _, item := range f.items {
+			if item != nil && item.HasFocus() {
+				if handler := item.InputHandler(); handler != nil {
+					handler(event, setFocus)
+					return
+				}
+			}
+		}
+
+		for _, button := range f.buttons {
+			if button.HasFocus() {
+				if handler := button.InputHandler(); handler != nil {
+					handler(event, setFocus)
+					return
+				}
+			}
+		}
+	})
 }

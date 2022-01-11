@@ -1,7 +1,7 @@
 package tview
 
 import (
-	"github.com/gdamore/tcell"
+	"github.com/gdamore/tcell/v2"
 )
 
 // Button is labeled box that triggers an action when selected.
@@ -26,8 +26,9 @@ type Button struct {
 	selected func()
 
 	// An optional function which is called when the user leaves the button. A
-	// key is provided indicating which key was pressed to leave (tab or backtab).
-	blur func(tcell.Key)
+	// key is provided indicating which key was pressed to leave (tab or
+	// backtab).
+	exit func(tcell.Key)
 }
 
 // NewButton returns a new input field.
@@ -80,31 +81,31 @@ func (b *Button) SetSelectedFunc(handler func()) *Button {
 	return b
 }
 
-// SetBlurFunc sets a handler which is called when the user leaves the button.
+// SetExitFunc sets a handler which is called when the user leaves the button.
 // The callback function is provided with the key that was pressed, which is one
 // of the following:
 //
 //   - KeyEscape: Leaving the button with no specific direction.
 //   - KeyTab: Move to the next field.
 //   - KeyBacktab: Move to the previous field.
-func (b *Button) SetBlurFunc(handler func(key tcell.Key)) *Button {
-	b.blur = handler
+func (b *Button) SetExitFunc(handler func(key tcell.Key)) *Button {
+	b.exit = handler
 	return b
 }
 
 // Draw draws this primitive onto the screen.
 func (b *Button) Draw(screen tcell.Screen) {
 	// Draw the box.
-	borderColor := b.borderColor
-	backgroundColor := b.backgroundColor
-	if b.focus.HasFocus() {
-		b.backgroundColor = b.backgroundColorActivated
-		b.borderColor = b.labelColorActivated
+	borderColor := b.GetBorderColor()
+	backgroundColor := b.GetBackgroundColor()
+	if b.HasFocus() {
+		b.SetBackgroundColor(b.backgroundColorActivated)
+		b.SetBorderColor(b.labelColorActivated)
 		defer func() {
-			b.borderColor = borderColor
+			b.SetBorderColor(borderColor)
 		}()
 	}
-	b.Box.Draw(screen)
+	b.Box.DrawForSubclass(screen, b)
 	b.backgroundColor = backgroundColor
 
 	// Draw label.
@@ -112,7 +113,7 @@ func (b *Button) Draw(screen tcell.Screen) {
 	if width > 0 && height > 0 {
 		y = y + height/2
 		labelColor := b.labelColor
-		if b.focus.HasFocus() {
+		if b.HasFocus() {
 			labelColor = b.labelColorActivated
 		}
 		Print(screen, b.label, x, y, width, AlignCenter, labelColor)
@@ -129,9 +130,29 @@ func (b *Button) InputHandler() func(event *tcell.EventKey, setFocus func(p Prim
 				b.selected()
 			}
 		case tcell.KeyBacktab, tcell.KeyTab, tcell.KeyEscape: // Leave. No action.
-			if b.blur != nil {
-				b.blur(key)
+			if b.exit != nil {
+				b.exit(key)
 			}
 		}
+	})
+}
+
+// MouseHandler returns the mouse handler for this primitive.
+func (b *Button) MouseHandler() func(action MouseAction, event *tcell.EventMouse, setFocus func(p Primitive)) (consumed bool, capture Primitive) {
+	return b.WrapMouseHandler(func(action MouseAction, event *tcell.EventMouse, setFocus func(p Primitive)) (consumed bool, capture Primitive) {
+		if !b.InRect(event.Position()) {
+			return false, nil
+		}
+
+		// Process mouse event.
+		if action == MouseLeftClick {
+			setFocus(b)
+			if b.selected != nil {
+				b.selected()
+			}
+			consumed = true
+		}
+
+		return
 	})
 }

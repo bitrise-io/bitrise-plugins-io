@@ -1,6 +1,6 @@
 package tview
 
-import "github.com/gdamore/tcell"
+import "github.com/gdamore/tcell/v2"
 
 // Primitive is the top-most interface for all graphical primitives.
 type Primitive interface {
@@ -38,9 +38,21 @@ type Primitive interface {
 	// Implementers may call delegate() to pass the focus on to another primitive.
 	Focus(delegate func(p Primitive))
 
+	// HasFocus determines if the primitive has focus. This function must return
+	// true also if one of this primitive's child elements has focus.
+	HasFocus() bool
+
 	// Blur is called by the application when the primitive loses focus.
 	Blur()
 
-	// GetFocusable returns the item's Focusable.
-	GetFocusable() Focusable
+	// MouseHandler returns a handler which receives mouse events.
+	// It is called by the Application class.
+	//
+	// A value of nil may also be returned to stop the downward propagation of
+	// mouse events.
+	//
+	// The Box class provides functionality to intercept mouse events. If you
+	// subclass from Box, it is recommended that you wrap your handler using
+	// Box.WrapMouseHandler() so you inherit that functionality.
+	MouseHandler() func(action MouseAction, event *tcell.EventMouse, setFocus func(p Primitive)) (consumed bool, capture Primitive)
 }

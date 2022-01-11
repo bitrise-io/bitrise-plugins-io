@@ -1,6 +1,6 @@
 # Rich Interactive Widgets for Terminal UIs
 
-[![Godoc Reference](https://img.shields.io/badge/godoc-reference-blue.svg)](https://godoc.org/github.com/rivo/tview)
+[![PkgGoDev](https://pkg.go.dev/badge/github.com/rivo/tview)](https://pkg.go.dev/github.com/rivo/tview)
 [![Go Report](https://img.shields.io/badge/go%20report-A%2B-brightgreen.svg)](https://goreportcard.com/report/github.com/rivo/tview)
 
 This Go package provides commonly needed components for terminal based user interfaces.
@@ -49,62 +49,81 @@ Check out the [GitHub Wiki](https://github.com/rivo/tview/wiki) for more example
 
 For a presentation highlighting this package, compile and run the program found in the "demos/presentation" subdirectory.
 
+## Projects using `tview`
+
+- [IRCCloud Terminal Client](https://github.com/termoose/irccloud)
+- [Window manager for `tview`](https://github.com/epiclabs-io/winman)
+- [Password manager](https://github.com/7onetella/password)
+- [CLI bookmark manager](https://github.com/Endi1/drawer)
+- [A caving database interface written in Go](https://github.com/IdlePhysicist/cave-logger)
+- [App for rental of electic bikes](https://github.com/MrDienns/bike-commerce)
+- [Interactive file browse and exec any command.](https://github.com/bannzai/itree)
+- [A simple CRM](https://github.com/broadcastle/crm)
+- [Terminal UI for todist](https://github.com/cyberdummy/todoista)
+- [Graphical kubectl wrapper](https://github.com/dcaiafa/kpick)
+- [Decred Decentralized Exchange ](https://github.com/decred/dcrdex)
+- [Kubernetes CLI To Manage Your Clusters In Style! ](https://github.com/derailed/k9s)
+- [A CLI file browser for Raspberry PI](https://github.com/destinmoulton/pixi)
+- [A tool to manage projects.](https://github.com/divramod/dp)
+- [A simple app for BMI monitoring](https://github.com/erleene/go-bmi)
+- [Stream TIDAL from command line](https://github.com/godsic/vibe)
+- [Secure solution for fully decentralized password management](https://github.com/guillaumemichel/passtor/)
+- [A growing collection of convenient little tools to work with systemd services](https://github.com/muesli/service-tools/)
+- [A terminal based browser for Redis written in Go](https://github.com/nitishm/redis-terminal)
+- [First project for the Computer Networks course.](https://github.com/pablogadhi/XMPPClient)
+- [Test your typing speed in the terminal!](https://github.com/shilangyu/typer-go)
+- [TUI Client for Docker](https://github.com/skanehira/docui)
+- [SSH client using certificates signed by HashiCorp Vault](https://github.com/stephane-martin/vssh)
+- [A go terminal based pos software.](https://github.com/thebmw/y2kpos)
+- [VMware vCenter Text UI](https://github.com/thebsdbox/vctui)
+- [Bookmarks on terminal](https://github.com/tryffel/bookmarker)
+- [A UDP testing utility](https://github.com/vaelen/udp-tester)
+- [A simple Kanban board for your terminal](https://github.com/witchard/toukan)
+- [The personal information dashboard for your terminal. ](https://github.com/wtfutil/wtf)
+- [MySQL database to Golang struct](https://github.com/xxjwxc/gormt)
+- [Cryptowatch Go SDK](https://github.com/y3sh/cw-sdk-go)
+- [Discord, TUI and SIXEL.](https://gitlab.com/diamondburned/6cord)
+- [A CLI Audio Player](https://www.github.com/dhulihan/grump)
+- [GLab, a GitLab CLI tool](https://gitlab.com/profclems/glab)
+- [Browse your AWS ECS Clusters in the Terminal](https://github.com/swartzrock/ecsview)
+- [The CLI Task Manager for Geeks](https://github.com/ajaxray/geek-life)
+- [Fast disk usage analyzer written in Go](https://github.com/dundee/gdu)
+- [Multiplayer Chess On Terminal](https://github.com/qnkhuat/gochess)
+- [Scriptable TUI music player](https://github.com/issadarkthing/gomu)
+- [MangaDesk : TUI Client for downloading manga to your computer](https://github.com/darylhjd/mangadesk)
+- [Go How Much? a Crypto coin price tracking from terminal](https://github.com/ledongthuc/gohowmuch)
+- [dbui: Universal CLI for Database Connections](https://github.com/KenanBek/dbui)
+- [ssmbrowse: Simple and elegant cli AWS SSM parameter browser](https://github.com/bnaydenov/ssmbrowse)
+- [gobit: binance intelligence terminal](https://github.com/infl00p/gobit)
+- [viddy: A modern watch command](https://github.com/sachaos/viddy)
+- [s3surfer: CLI tool for browsing S3 bucket and download objects interactively](https://github.com/hirose31/s3surfer)
+- [libgen-tui: A terminal UI for downloading books from Library Genesis](https://github.com/audstanley/libgen-tui)
+- [kubectl-lazy: kubectl plugin to easy to view pod](https://github.com/togettoyou/kubectl-lazy)
+- [podman-tui: podman user interface](https://github.com/navidys/podman-tui)
+- [tvxwidgets: tview extra widgets](https://github.com/navidys/tvxwidgets)
+- [Domino card game on terminal](https://github.com/gusti-andika/card-domino.git)
+- [goaround: Query stackoverflow API and get results on terminal](https://github.com/glendsoza/goaround)
+
 ## Documentation
 
-Refer to https://godoc.org/github.com/rivo/tview for the package's documentation.
+Refer to https://pkg.go.dev/github.com/rivo/tview for the package's documentation. Also check out the [Wiki](https://github.com/rivo/tview/wiki).
 
 ## Dependencies
 
 This package is based on [github.com/gdamore/tcell](https://github.com/gdamore/tcell) (and its dependencies) as well as on [github.com/rivo/uniseg](https://github.com/rivo/uniseg).
 
+## Versioning and Backwards-Compatibility
+
+I try really hard to keep this project backwards compatible. Your software should not break when you upgrade `tview`. But this also means that some of its shortcomings that were present in the initial versions will remain. In addition, at least for the time being, you won't find any version tags in this repo. The newest version should be the one to upgrade to. It has all the bugfixes and latest features. Having said that, backwards compatibility may still break when:
+
+- a new version of an imported package (most likely [`tcell`](https://github.com/gdamore/tcell)) changes in such a way that forces me to make changes in `tview` as well,
+- I fix something that I consider a bug, rather than a feature, something that does not work as originally intended,
+- I make changes to "internal" interfaces such as [`Primitive`](https://pkg.go.dev/github.com/rivo/tview#Primitive). You shouldn't need these interfaces unless you're writing your own primitives for `tview`. (Yes, I realize these are public interfaces. This has advantages as well as disadvantages. For the time being, it is what it is.)
+
 ## Your Feedback
 
 Add your issue here on GitHub. Feel free to get in touch if you have any questions.
 
-## Version History
+## Code of Conduct
 
-(There are no corresponding tags in the project. I only keep such a history in this README.)
-
-- v0.20 (2019-07-08)
-  - Added autocomplete functionality to `InputField`.
-- v0.19 (2018-10-28)
-  - Added `QueueUpdate()` and `QueueEvent()` to `Application` to help with modifications to primitives from goroutines.
-- v0.18 (2018-10-18)
-  - `InputField` elements can now be navigated freely.
-- v0.17 (2018-06-20)
-  - Added `TreeView`.
-- v0.15 (2018-05-02)
-  - `Flex` and `Grid` don't clear their background per default, thus allowing for custom modals. See the [Wiki](https://github.com/rivo/tview/wiki/Modal) for an example.
-- v0.14 (2018-04-13)
-  - Added an `Escape()` function which keep strings like color or region tags from being recognized as such.
-  - Added `ANSIWriter()` and `TranslateANSI()` which convert ANSI escape sequences to `tview` color tags.
-- v0.13 (2018-04-01)
-  - Added background colors and text attributes to color tags.
-- v0.12 (2018-03-13)
-  - Added "suspended mode" to `Application`.
-- v0.11 (2018-03-02)
-  - Added a `RemoveItem()` function to `Grid` and `Flex`.
-- v0.10 (2018-02-22)
-  - Direct access to the `screen` object through callback in `Box` (i.e. for all primitives).
-- v0.9 (2018-02-20)
-  - Introduced `Grid` layout.
-  - Direct access to the `screen` object through callbacks in `Application`.
-- v0.8 (2018-01-17)
-  - Color tags can now be used almost everywhere.
-- v0.7 (2018-01-16)
-  - Forms can now also have a horizontal layout.
-- v0.6 (2018-01-14)
-  - All primitives can now intercept all key events when they have focus.
-  - Key events can also be intercepted globally (changed to a more general, consistent handling)
-- v0.5 (2018-01-13)
-  - `TextView` now has word wrapping and text alignment
-- v0.4 (2018-01-12)
-  - `TextView` now accepts color tags with any W3C color (including RGB hex values).
-  - Support for wide unicode characters.
-- v0.3 (2018-01-11)
-  - Added masking to `InputField` and password entry to `Form`.
-- v0.2 (2018-01-10)
-  - Added `Styles` variable with default colors for primitives.
-  - Completed some missing InputField functions.
-- v0.1 (2018-01-06)
-  - First Release.
+We follow Golang's Code of Conduct which you can find [here](https://golang.org/conduct).
